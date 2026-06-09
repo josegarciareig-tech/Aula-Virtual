@@ -445,6 +445,14 @@
       line-height:1.6;
     }
 
+    .status-box{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      background:var(--surface-2);
+      color:var(--muted);
+    }
+
     .mobile-top{
       display:none;
     }
@@ -544,13 +552,13 @@
         <div class="hero">
           <div class="card welcome">
             <h3>Bienvenido a AULA VIRTUAL</h3>
-            <p>Esta pantalla imita la idea general de Moodle: acceso rápido a tus cursos, resumen del trabajo y entrada directa a los materiales docentes desde una sola interfaz clara.</p>
-            <button class="btn btn-primary">Entrar al curso ejemplo</button>
+            <p>Esta pantalla ya está conectada con la API real de Cloudflare Pages + D1 para cargar los cursos desde la base de datos.</p>
+            <button class="btn btn-primary" onclick="openCourse()">Entrar al curso ejemplo</button>
 
             <div class="stats">
               <div class="stat">
                 <span>Cursos activos</span>
-                <strong>4</strong>
+                <strong id="statCursos">0</strong>
               </div>
               <div class="stat">
                 <span>Documentos</span>
@@ -587,43 +595,19 @@
           <button class="btn btn-secondary">Ver todos</button>
         </div>
 
-        <div class="courses">
-          <article class="card course-card" onclick="openCourse()">
-            <div class="course-cover"></div>
-            <div class="course-body">
-              <span class="tag">En progreso</span>
-              <h4>Cuidados de heridas</h4>
-              <p>Material docente, protocolos, casos clínicos y recursos descargables.</p>
-              <div class="progress"><div style="width:72%"></div></div>
-            </div>
-          </article>
-
-          <article class="card course-card">
-            <div class="course-cover" style="background:linear-gradient(135deg,#115ea3,#2cc5a8)"></div>
-            <div class="course-body">
-              <span class="tag">Activo</span>
-              <h4>Control de infección</h4>
-              <p>Guías prácticas, algoritmos y presentaciones de actualización.</p>
-              <div class="progress"><div style="width:48%"></div></div>
-            </div>
-          </article>
-
-          <article class="card course-card">
-            <div class="course-cover" style="background:linear-gradient(135deg,#6b4ce6,#ff8c42)"></div>
-            <div class="course-body">
-              <span class="tag">Disponible</span>
-              <h4>Investigación clínica</h4>
-              <p>Diseño de estudios, análisis de datos y documentación de apoyo.</p>
-              <div class="progress"><div style="width:30%"></div></div>
-            </div>
-          </article>
+        <div id="coursesContainer" class="courses">
+          <div class="status-box">Cargando cursos desde la base de datos...</div>
         </div>
       </section>
 
       <section id="mis-cursos" class="view">
         <div class="page-head">
           <h2>Mis cursos</h2>
-          <p>Aquí podrás ver todos los cursos en formato tarjeta, parecido a la vista general de Moodle.</p>
+          <p>Aquí podrás ver todos los cursos cargados desde la API.</p>
+        </div>
+        <br>
+        <div id="coursesContainer2" class="courses">
+          <div class="status-box">Cargando cursos...</div>
         </div>
       </section>
 
@@ -794,6 +778,53 @@
 
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+
+    function getCover(index) {
+      const covers = [
+        'linear-gradient(135deg,#0f6cbd,#ff8c42)',
+        'linear-gradient(135deg,#115ea3,#2cc5a8)',
+        'linear-gradient(135deg,#6b4ce6,#ff8c42)',
+        'linear-gradient(135deg,#0f6cbd,#7a5cff)'
+      ];
+      return covers[index % covers.length];
+    }
+
+    function renderCursos(cursos) {
+      const html = cursos.map((curso, index) => `
+        <article class="card course-card" onclick="openCourse()">
+          <div class="course-cover" style="background:${getCover(index)}"></div>
+          <div class="course-body">
+            <span class="tag">Activo</span>
+            <h4>${curso.titulo}</h4>
+            <p>${curso.descripcion || 'Sin descripción.'}</p>
+            <div class="progress"><div style="width:${40 + (index * 15 % 50)}%"></div></div>
+          </div>
+        </article>
+      `).join('');
+
+      document.getElementById('coursesContainer').innerHTML = html || '<div class="status-box">No hay cursos todavía.</div>';
+      document.getElementById('coursesContainer2').innerHTML = html || '<div class="status-box">No hay cursos todavía.</div>';
+      document.getElementById('statCursos').textContent = cursos.length;
+    }
+
+    async function cargarCursos() {
+      try {
+        const res = await fetch('/api/cursos');
+        const data = await res.json();
+
+        if (!data.ok) {
+          throw new Error(data.error || 'No se pudieron cargar los cursos');
+        }
+
+        renderCursos(data.cursos || []);
+      } catch (error) {
+        const msg = `<div class="status-box">Error al cargar cursos: ${error.message}</div>`;
+        document.getElementById('coursesContainer').innerHTML = msg;
+        document.getElementById('coursesContainer2').innerHTML = msg;
+      }
+    }
+
+    cargarCursos();
   </script>
 </body>
 </html>
