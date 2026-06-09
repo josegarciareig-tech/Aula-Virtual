@@ -416,6 +416,7 @@
       font-weight:700;
       border-radius:999px;
       padding:6px 10px;
+      text-transform:uppercase;
     }
 
     .viewer{
@@ -552,8 +553,8 @@
         <div class="hero">
           <div class="card welcome">
             <h3>Bienvenido a AULA VIRTUAL</h3>
-            <p>Esta pantalla ya está conectada con la API real de Cloudflare Pages + D1 para cargar los cursos desde la base de datos.</p>
-            <button class="btn btn-primary" onclick="openCourse()">Entrar al curso ejemplo</button>
+            <p>Esta pantalla ya está conectada con la API real de Cloudflare Pages + D1 para cargar cursos, temas y materiales desde la base de datos.</p>
+            <button class="btn btn-primary" onclick="openCourseFromId(1)">Entrar al curso ejemplo</button>
 
             <div class="stats">
               <div class="stat">
@@ -561,12 +562,12 @@
                 <strong id="statCursos">0</strong>
               </div>
               <div class="stat">
-                <span>Documentos</span>
-                <strong>28</strong>
+                <span>Temas del curso</span>
+                <strong id="statTemas">0</strong>
               </div>
               <div class="stat">
-                <span>Tareas pendientes</span>
-                <strong>3</strong>
+                <span>Materiales</span>
+                <strong id="statMateriales">0</strong>
               </div>
             </div>
           </div>
@@ -614,8 +615,8 @@
       <section id="curso-demo" class="view">
         <div class="topbar">
           <div class="page-head">
-            <h2>Curso: Cuidados de heridas</h2>
-            <p>Página tipo Moodle con temas en la izquierda y materiales en el panel principal.</p>
+            <h2 id="cursoTitulo">Curso</h2>
+            <p id="cursoDescripcion">Cargando datos del curso...</p>
           </div>
           <div class="top-actions">
             <button class="btn btn-secondary">Editar curso</button>
@@ -626,69 +627,14 @@
         <div class="course-layout">
           <aside class="card course-menu">
             <h4>Temas del curso</h4>
-            <div class="topic-list">
-              <button class="topic-btn active" onclick="showTopic('t1', this)">Tema 1 · Introducción</button>
-              <button class="topic-btn" onclick="showTopic('t2', this)">Tema 2 · Biofilm</button>
-              <button class="topic-btn" onclick="showTopic('t3', this)">Tema 3 · Casos clínicos</button>
+            <div class="topic-list" id="topicList">
+              <div class="status-box">Cargando temas...</div>
             </div>
           </aside>
 
           <section class="card course-main">
-            <div id="t1" class="topic-content">
-              <h4>Material del Tema 1</h4>
-
-              <div class="material">
-                <div class="material-top">
-                  <strong>Guía básica de valoración</strong>
-                  <span class="material-type">PDF</span>
-                </div>
-                <p>Documento principal del tema para lectura en pantalla.</p>
-                <button class="btn btn-secondary" onclick="preview('PDF: Guía básica de valoración')">Ver en navegador</button>
-              </div>
-
-              <div class="material">
-                <div class="material-top">
-                  <strong>Resumen del tema</strong>
-                  <span class="material-type">WORD</span>
-                </div>
-                <p>Versión editable del contenido docente.</p>
-                <button class="btn btn-secondary" onclick="preview('WORD: Resumen del tema')">Ver en navegador</button>
-              </div>
-            </div>
-
-            <div id="t2" class="topic-content" style="display:none">
-              <h4>Material del Tema 2</h4>
-
-              <div class="material">
-                <div class="material-top">
-                  <strong>Biofilm y antisepsia</strong>
-                  <span class="material-type">PPTX</span>
-                </div>
-                <p>Presentación para clase con esquema visual del contenido.</p>
-                <button class="btn btn-secondary" onclick="preview('PPTX: Biofilm y antisepsia')">Ver en navegador</button>
-              </div>
-
-              <div class="material">
-                <div class="material-top">
-                  <strong>Lectura complementaria</strong>
-                  <span class="material-type">PDF</span>
-                </div>
-                <p>Artículo de apoyo para ampliar conceptos.</p>
-                <button class="btn btn-secondary" onclick="preview('PDF: Lectura complementaria')">Ver en navegador</button>
-              </div>
-            </div>
-
-            <div id="t3" class="topic-content" style="display:none">
-              <h4>Material del Tema 3</h4>
-
-              <div class="material">
-                <div class="material-top">
-                  <strong>Casos clínicos interactivos</strong>
-                  <span class="material-type">HTML</span>
-                </div>
-                <p>Contenido preparado para abrirse dentro del aula virtual.</p>
-                <button class="btn btn-secondary" onclick="preview('HTML: Casos clínicos interactivos')">Ver en navegador</button>
-              </div>
+            <div id="materialsContainer">
+              <div class="status-box">Cargando materiales...</div>
             </div>
 
             <div class="viewer">
@@ -696,7 +642,7 @@
               <div class="viewer-box" id="viewerBox">
                 Aquí aparecerá la vista previa del documento dentro del navegador.
                 <br><br>
-                Más adelante conectaremos este cuadro con PDF, Word, PPTX y HTML reales.
+                En el siguiente paso conectaremos este cuadro con archivos reales de R2.
               </div>
             </div>
           </section>
@@ -732,6 +678,9 @@
     const root = document.documentElement;
     const viewerBox = document.getElementById('viewerBox');
 
+    let currentCourseData = null;
+    let currentTemaId = null;
+
     links.forEach(link => {
       link.addEventListener('click', () => {
         const view = link.dataset.view;
@@ -742,33 +691,24 @@
 
         views.forEach(v => v.classList.remove('active'));
         document.getElementById(view).classList.add('active');
+
+        if (view === 'curso-demo') {
+          loadCursoDetalle(1);
+        }
       });
     });
 
-    function openCourse() {
+    function activateView(viewId) {
       views.forEach(v => v.classList.remove('active'));
-      document.getElementById('curso-demo').classList.add('active');
+      document.getElementById(viewId).classList.add('active');
       links.forEach(l => l.classList.remove('active'));
-      document.querySelector('[data-view="curso-demo"]').classList.add('active');
+      const activeLink = document.querySelector(`[data-view="${viewId}"]`);
+      if (activeLink) activeLink.classList.add('active');
     }
 
-    function showTopic(id, btn) {
-      document.querySelectorAll('.topic-content').forEach(el => el.style.display = 'none');
-      document.getElementById(id).style.display = 'block';
-      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-
-    function preview(name) {
-      viewerBox.innerHTML = `
-        <div>
-          <strong>${name}</strong>
-          <br><br>
-          Esta es una vista previa simulada.
-          <br>
-          En el siguiente paso la conectaremos con archivos reales subidos a Cloudflare R2.
-        </div>
-      `;
+    function openCourseFromId(id) {
+      activateView('curso-demo');
+      loadCursoDetalle(id);
     }
 
     function toggleTheme() {
@@ -791,7 +731,7 @@
 
     function renderCursos(cursos) {
       const html = cursos.map((curso, index) => `
-        <article class="card course-card" onclick="openCourse()">
+        <article class="card course-card" onclick="openCourseFromId(${curso.id})">
           <div class="course-cover" style="background:${getCover(index)}"></div>
           <div class="course-body">
             <span class="tag">Activo</span>
@@ -824,7 +764,121 @@
       }
     }
 
+    function renderTemas(temas) {
+      const topicList = document.getElementById('topicList');
+
+      if (!temas.length) {
+        topicList.innerHTML = '<div class="status-box">No hay temas para este curso.</div>';
+        return;
+      }
+
+      topicList.innerHTML = temas.map((tema, index) => `
+        <button class="${index === 0 ? 'active' : ''}" onclick="selectTema(${tema.id}, this)">
+          ${tema.titulo}
+        </button>
+      `).join('');
+
+      currentTemaId = temas[0].id;
+    }
+
+    function renderMaterialesPorTema(temaId) {
+      const materialsContainer = document.getElementById('materialsContainer');
+
+      if (!currentCourseData) {
+        materialsContainer.innerHTML = '<div class="status-box">No hay datos del curso.</div>';
+        return;
+      }
+
+      const tema = currentCourseData.temas.find(t => t.id === temaId);
+      const materiales = currentCourseData.materiales.filter(m => m.tema_id === temaId);
+
+      const tituloTema = tema ? tema.titulo : 'Tema';
+      const descripcionTema = tema?.descripcion || '';
+
+      if (!materiales.length) {
+        materialsContainer.innerHTML = `
+          <h4>${tituloTema}</h4>
+          <p style="color:var(--muted); margin-bottom:14px;">${descripcionTema}</p>
+          <div class="status-box">No hay materiales en este tema.</div>
+        `;
+        return;
+      }
+
+      materialsContainer.innerHTML = `
+        <h4>${tituloTema}</h4>
+        <p style="color:var(--muted); margin-bottom:14px;">${descripcionTema}</p>
+        ${materiales.map(material => `
+          <div class="material">
+            <div class="material-top">
+              <strong>${material.titulo}</strong>
+              <span class="material-type">${material.tipo}</span>
+            </div>
+            <p>${material.descripcion || 'Sin descripción.'}</p>
+            <button class="btn btn-secondary" onclick="previewMaterial('${material.titulo.replace(/'/g, "\\'")}', '${material.tipo}', '${material.archivo_nombre.replace(/'/g, "\\'")}')">
+              Ver en navegador
+            </button>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function selectTema(temaId, btn) {
+      currentTemaId = temaId;
+      document.querySelectorAll('#topicList button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMaterialesPorTema(temaId);
+    }
+
+    function previewMaterial(titulo, tipo, archivoNombre) {
+      viewerBox.innerHTML = `
+        <div>
+          <strong>${titulo}</strong>
+          <br><br>
+          Tipo de archivo: ${tipo.toUpperCase()}
+          <br>
+          Archivo: ${archivoNombre}
+          <br><br>
+          En el siguiente paso conectaremos esta vista con documentos reales de Cloudflare R2.
+        </div>
+      `;
+    }
+
+    async function loadCursoDetalle(id = 1) {
+      try {
+        document.getElementById('cursoTitulo').textContent = 'Cargando curso...';
+        document.getElementById('cursoDescripcion').textContent = 'Esperando respuesta de la API...';
+        document.getElementById('topicList').innerHTML = '<div class="status-box">Cargando temas...</div>';
+        document.getElementById('materialsContainer').innerHTML = '<div class="status-box">Cargando materiales...</div>';
+
+        const res = await fetch(`/api/curso?id=${id}`);
+        const data = await res.json();
+
+        if (!data.ok) {
+          throw new Error(data.error || 'No se pudo cargar el curso');
+        }
+
+        currentCourseData = data;
+        document.getElementById('cursoTitulo').textContent = data.curso?.titulo || 'Curso';
+        document.getElementById('cursoDescripcion').textContent = data.curso?.descripcion || 'Sin descripción.';
+        document.getElementById('statTemas').textContent = (data.temas || []).length;
+        document.getElementById('statMateriales').textContent = (data.materiales || []).length;
+
+        renderTemas(data.temas || []);
+        if ((data.temas || []).length) {
+          renderMaterialesPorTema(data.temas[0].id);
+        } else {
+          document.getElementById('materialsContainer').innerHTML = '<div class="status-box">Este curso todavía no tiene temas.</div>';
+        }
+      } catch (error) {
+        document.getElementById('cursoTitulo').textContent = 'Error';
+        document.getElementById('cursoDescripcion').textContent = 'No se pudo cargar el curso.';
+        document.getElementById('topicList').innerHTML = `<div class="status-box">Error: ${error.message}</div>`;
+        document.getElementById('materialsContainer').innerHTML = `<div class="status-box">Error: ${error.message}</div>`;
+      }
+    }
+
     cargarCursos();
+    loadCursoDetalle(1);
   </script>
 </body>
 </html>
