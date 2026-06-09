@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AULA VIRTUAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --surface-2:#eef3fb;
+      --line:#d9e2f0;
+      --text:#182230;
+      --muted:#5f6b7a;
+      --primary:#0f6cbd;
+      --primary-2:#115ea3;
+      --accent:#ff8c42;
+      --success:#1f845a;
+      --shadow:0 10px 30px rgba(15, 25, 40, 0.08);
+      --radius:16px;
+      --sidebar:270px;
+    }
+
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --surface:#121a2b;
+      --surface-2:#182338;
+      --line:#29354b;
+      --text:#edf2f7;
+      --muted:#9fb0c5;
+      --primary:#4ea1ff;
+      --primary-2:#7ab8ff;
+      --accent:#ff9d5c;
+      --success:#4ecb8d;
+      --shadow:0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:var(--sidebar) 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:linear-gradient(180deg,#0f1728 0%, #16233a 100%);
+      color:#fff;
+      padding:24px 18px;
+      border-right:1px solid rgba(255,255,255,.08);
+      position:sticky;
+      top:0;
+      height:100vh;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:28px;
+    }
+
+    .brand-logo{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--primary),var(--accent));
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      color:#fff;
+      box-shadow:var(--shadow);
+    }
+
+    .brand-text h1{
+      font-size:18px;
+      line-height:1.1;
+      font-weight:800;
+    }
+
+    .brand-text p{
+      font-size:12px;
+      color:#b9c7da;
+      margin-top:4px;
+    }
+
+    .menu-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#8ea1bb;
+      margin:22px 10px 10px;
+    }
+
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .nav button{
+      width:100%;
+      border:none;
+      background:transparent;
+      color:#dbe7f5;
+      text-align:left;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:15px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .nav button:hover,
+    .nav button.active{
+      background:rgba(255,255,255,.1);
+      color:#fff;
+    }
+
+    .content{
+      padding:24px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:24px;
+      flex-wrap:wrap;
+    }
+
+    .page-head h2{
+      font-size:28px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .page-head p{
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .search{
+      background:var(--surface);
+      border:1px solid var(--line);
+      padding:12px 14px;
+      border-radius:12px;
+      min-width:240px;
+      color:var(--text);
+    }
+
+    .btn{
+      border:none;
+      padding:12px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:white;
+    }
+
+    .btn-secondary{
+      background:var(--surface);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.4fr .8fr;
+      gap:20px;
+      margin-bottom:24px;
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .welcome{
+      padding:28px;
+      background:linear-gradient(135deg, rgba(15,108,189,.12), rgba(255,140,66,.12));
+    }
+
+    .welcome h3{
+      font-size:26px;
+      margin-bottom:10px;
+    }
+
+    .welcome p{
+      color:var(--muted);
+      max-width:60ch;
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .stat{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+    }
+
+    .stat span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+    }
+
+    .stat strong{
+      font-size:24px;
+    }
+
+    .side-panel{
+      padding:22px;
+    }
+
+    .side-panel h4{
+      margin-bottom:14px;
+      font-size:17px;
+    }
+
+    .mini-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .mini-item{
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .mini-item small{
+      color:var(--muted);
+      display:block;
+      margin-top:4px;
+    }
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin:28px 0 14px;
+      flex-wrap:wrap;
+    }
+
+    .section-title h3{
+      font-size:22px;
+    }
+
+    .courses{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+    }
+
+    .course-card{
+      overflow:hidden;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .course-card:hover{
+      transform:translateY(-3px);
+    }
+
+    .course-cover{
+      height:120px;
+      background:linear-gradient(135deg,#0f6cbd,#ff8c42);
+    }
+
+    .course-body{
+      padding:18px;
+    }
+
+    .tag{
+      display:inline-block;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(15,108,189,.12);
+      color:var(--primary);
+      margin-bottom:12px;
+      font-weight:600;
+    }
+
+    .course-body h4{
+      font-size:18px;
+      margin-bottom:8px;
+    }
+
+    .course-body p{
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+      margin-bottom:14px;
+    }
+
+    .progress{
+      height:10px;
+      background:var(--surface-2);
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid var(--line);
+    }
+
+    .progress div{
+      height:100%;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      width:60%;
+    }
+
+    .view{
+      display:none;
+    }
+
+    .view.active{
+      display:block;
+    }
+
+    .course-layout{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      gap:20px;
+    }
+
+    .course-menu,
+    .course-main{
+      padding:20px;
+    }
+
+    .course-menu h4,
+    .course-main h4{
+      margin-bottom:14px;
+      font-size:18px;
+    }
+
+    .topic-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .topic-list button{
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+      padding:12px;
+      border-radius:12px;
+      text-align:left;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .topic-list button.active{
+      background:rgba(15,108,189,.12);
+      border-color:rgba(15,108,189,.35);
+      color:var(--primary);
+    }
+
+    .material{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:14px;
+      background:var(--surface);
+    }
+
+    .material-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .material-type{
+      background:rgba(255,140,66,.15);
+      color:#c85d16;
+      font-size:12px;
+      font-weight:700;
+      border-radius:999px;
+      padding:6px 10px;
+    }
+
+    .viewer{
+      margin-top:18px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:18px;
+      background:var(--surface-2);
+    }
+
+    .viewer h5{
+      margin-bottom:10px;
+      font-size:18px;
+    }
+
+    .viewer-box{
+      min-height:320px;
+      border-radius:12px;
+      background:var(--surface);
+      border:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      text-align:center;
+      padding:20px;
+      line-height:1.6;
+    }
+
+    .mobile-top{
+      display:none;
+    }
+
+    @media (max-width: 1100px){
+      .hero,
+      .course-layout,
+      .courses{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 820px){
+      .app{
+        grid-template-columns:1fr;
+      }
+
+      .sidebar{
+        display:none;
+      }
+
+      .mobile-top{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:16px 20px;
+        background:#0f1728;
+        color:white;
+        position:sticky;
+        top:0;
+        z-index:20;
+      }
+
+      .content{
+        padding:18px;
+      }
+
+      .stats{
+        grid-template-columns:1fr;
+      }
+
+      .courses{
+        grid-template-columns:1fr;
+      }
+
+      .search{
+        min-width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="mobile-top">
+    <strong>AULA VIRTUAL</strong>
+    <button class="btn btn-secondary" id="themeToggleMobile">Modo</button>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">AV</div>
+        <div class="brand-text">
+          <h1>AULA VIRTUAL</h1>
+          <p>Campus docente</p>
+        </div>
+      </div>
+
+      <div class="menu-title">Principal</div>
+      <nav class="nav">
+        <button class="nav-link active" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="mis-cursos">Mis cursos</button>
+        <button class="nav-link" data-view="curso-demo">Curso ejemplo</button>
+        <button class="nav-link" data-view="calendario">Calendario</button>
+        <button class="nav-link" data-view="archivos">Archivos</button>
+      </nav>
+
+      <div class="menu-title">Configuración</div>
+      <nav class="nav">
+        <button class="nav-link" data-view="perfil">Perfil</button>
+        <button id="themeToggle" class="nav-link">Cambiar modo</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section id="dashboard" class="view active">
+        <div class="topbar">
+          <div class="page-head">
+            <h2>Dashboard</h2>
+            <p>Tu espacio personal, con acceso rápido a cursos, materiales y actividad reciente.</p>
+          </div>
+          <div class="top-actions">
+            <input class="search" type="text" placeholder="Buscar curso o documento..." />
+            <button class="btn btn-primary">+ Nuevo recurso</button>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="card welcome">
+            <h3>Bienvenido a AULA VIRTUAL</h3>
+            <p>Esta pantalla imita la idea general de Moodle: acceso rápido a tus cursos, resumen del trabajo y entrada directa a los materiales docentes desde una sola interfaz clara.</p>
+            <button class="btn btn-primary">Entrar al curso ejemplo</button>
+
+            <div class="stats">
+              <div class="stat">
+                <span>Cursos activos</span>
+                <strong>4</strong>
+              </div>
+              <div class="stat">
+                <span>Documentos</span>
+                <strong>28</strong>
+              </div>
+              <div class="stat">
+                <span>Tareas pendientes</span>
+                <strong>3</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="card side-panel">
+            <h4>Actividad reciente</h4>
+            <div class="mini-list">
+              <div class="mini-item">
+                Tema 1 actualizado
+                <small>Hoy · Curso de heridas</small>
+              </div>
+              <div class="mini-item">
+                Nuevo PDF subido
+                <small>Ayer · Biofilm y antisepsia</small>
+              </div>
+              <div class="mini-item">
+                Presentación disponible
+                <small>Hace 2 días · Casos clínicos</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>Mis cursos</h3>
+          <button class="btn btn-secondary">Ver todos</button>
+        </div>
+
+        <div class="courses">
+          <article class="card course-card" onclick="openCourse()">
+            <div class="course-cover"></div>
+            <div class="course-body">
+              <span class="tag">En progreso</span>
+              <h4>Cuidados de heridas</h4>
+              <p>Material docente, protocolos, casos clínicos y recursos descargables.</p>
+              <div class="progress"><div style="width:72%"></div></div>
+            </div>
+          </article>
+
+          <article class="card course-card">
+            <div class="course-cover" style="background:linear-gradient(135deg,#115ea3,#2cc5a8)"></div>
+            <div class="course-body">
+              <span class="tag">Activo</span>
+              <h4>Control de infección</h4>
+              <p>Guías prácticas, algoritmos y presentaciones de actualización.</p>
+              <div class="progress"><div style="width:48%"></div></div>
+            </div>
+          </article>
+
+          <article class="card course-card">
+            <div class="course-cover" style="background:linear-gradient(135deg,#6b4ce6,#ff8c42)"></div>
+            <div class="course-body">
+              <span class="tag">Disponible</span>
+              <h4>Investigación clínica</h4>
+              <p>Diseño de estudios, análisis de datos y documentación de apoyo.</p>
+              <div class="progress"><div style="width:30%"></div></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="mis-cursos" class="view">
+        <div class="page-head">
+          <h2>Mis cursos</h2>
+          <p>Aquí podrás ver todos los cursos en formato tarjeta, parecido a la vista general de Moodle.</p>
+        </div>
+      </section>
+
+      <section id="curso-demo" class="view">
+        <div class="topbar">
+          <div class="page-head">
+            <h2>Curso: Cuidados de heridas</h2>
+            <p>Página tipo Moodle con temas en la izquierda y materiales en el panel principal.</p>
+          </div>
+          <div class="top-actions">
+            <button class="btn btn-secondary">Editar curso</button>
+            <button class="btn btn-primary">Subir archivo</button>
+          </div>
+        </div>
+
+        <div class="course-layout">
+          <aside class="card course-menu">
+            <h4>Temas del curso</h4>
+            <div class="topic-list">
+              <button class="topic-btn active" onclick="showTopic('t1', this)">Tema 1 · Introducción</button>
+              <button class="topic-btn" onclick="showTopic('t2', this)">Tema 2 · Biofilm</button>
+              <button class="topic-btn" onclick="showTopic('t3', this)">Tema 3 · Casos clínicos</button>
+            </div>
+          </aside>
+
+          <section class="card course-main">
+            <div id="t1" class="topic-content">
+              <h4>Material del Tema 1</h4>
+
+              <div class="material">
+                <div class="material-top">
+                  <strong>Guía básica de valoración</strong>
+                  <span class="material-type">PDF</span>
+                </div>
+                <p>Documento principal del tema para lectura en pantalla.</p>
+                <button class="btn btn-secondary" onclick="preview('PDF: Guía básica de valoración')">Ver en navegador</button>
+              </div>
+
+              <div class="material">
+                <div class="material-top">
+                  <strong>Resumen del tema</strong>
+                  <span class="material-type">WORD</span>
+                </div>
+                <p>Versión editable del contenido docente.</p>
+                <button class="btn btn-secondary" onclick="preview('WORD: Resumen del tema')">Ver en navegador</button>
+              </div>
+            </div>
+
+            <div id="t2" class="topic-content" style="display:none">
+              <h4>Material del Tema 2</h4>
+
+              <div class="material">
+                <div class="material-top">
+                  <strong>Biofilm y antisepsia</strong>
+                  <span class="material-type">PPTX</span>
+                </div>
+                <p>Presentación para clase con esquema visual del contenido.</p>
+                <button class="btn btn-secondary" onclick="preview('PPTX: Biofilm y antisepsia')">Ver en navegador</button>
+              </div>
+
+              <div class="material">
+                <div class="material-top">
+                  <strong>Lectura complementaria</strong>
+                  <span class="material-type">PDF</span>
+                </div>
+                <p>Artículo de apoyo para ampliar conceptos.</p>
+                <button class="btn btn-secondary" onclick="preview('PDF: Lectura complementaria')">Ver en navegador</button>
+              </div>
+            </div>
+
+            <div id="t3" class="topic-content" style="display:none">
+              <h4>Material del Tema 3</h4>
+
+              <div class="material">
+                <div class="material-top">
+                  <strong>Casos clínicos interactivos</strong>
+                  <span class="material-type">HTML</span>
+                </div>
+                <p>Contenido preparado para abrirse dentro del aula virtual.</p>
+                <button class="btn btn-secondary" onclick="preview('HTML: Casos clínicos interactivos')">Ver en navegador</button>
+              </div>
+            </div>
+
+            <div class="viewer">
+              <h5>Visor del documento</h5>
+              <div class="viewer-box" id="viewerBox">
+                Aquí aparecerá la vista previa del documento dentro del navegador.
+                <br><br>
+                Más adelante conectaremos este cuadro con PDF, Word, PPTX y HTML reales.
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="calendario" class="view">
+        <div class="page-head">
+          <h2>Calendario</h2>
+          <p>Más adelante aquí irán fechas, entregas, sesiones y eventos del aula.</p>
+        </div>
+      </section>
+
+      <section id="archivos" class="view">
+        <div class="page-head">
+          <h2>Archivos</h2>
+          <p>Esta sección servirá para listar todos los documentos subidos al aula virtual.</p>
+        </div>
+      </section>
+
+      <section id="perfil" class="view">
+        <div class="page-head">
+          <h2>Perfil</h2>
+          <p>Aquí podrás añadir nombre, rol, imagen y preferencias de usuario.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const links = document.querySelectorAll('.nav-link');
+    const views = document.querySelectorAll('.view');
+    const root = document.documentElement;
+    const viewerBox = document.getElementById('viewerBox');
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        const view = link.dataset.view;
+        if (!view) return;
+
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        views.forEach(v => v.classList.remove('active'));
+        document.getElementById(view).classList.add('active');
+      });
+    });
+
+    function openCourse() {
+      views.forEach(v => v.classList.remove('active'));
+      document.getElementById('curso-demo').classList.add('active');
+      links.forEach(l => l.classList.remove('active'));
+      document.querySelector('[data-view="curso-demo"]').classList.add('active');
+    }
+
+    function showTopic(id, btn) {
+      document.querySelectorAll('.topic-content').forEach(el => el.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function preview(name) {
+      viewerBox.innerHTML = `
+        <div>
+          <strong>${name}</strong>
+          <br><br>
+          Esta es una vista previa simulada.
+          <br>
+          En el siguiente paso la conectaremos con archivos reales subidos a Cloudflare R2.
+        </div>
+      `;
+    }
+
+    function toggleTheme() {
+      const current = root.getAttribute('data-theme');
+      root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+  </script>
+</body>
+</html>
