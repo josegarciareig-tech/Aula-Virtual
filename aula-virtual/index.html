@@ -39,6 +39,7 @@
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
+
     body{
       font-family:'Inter',sans-serif;
       background:var(--bg);
@@ -812,7 +813,7 @@
               <span class="material-type">${material.tipo}</span>
             </div>
             <p>${material.descripcion || 'Sin descripción.'}</p>
-            <button class="btn btn-secondary" onclick="previewMaterial('${material.titulo.replace(/'/g, "\\'")}', '${material.tipo}', '${material.archivo_nombre.replace(/'/g, "\\'")}')">
+            <button class="btn btn-secondary" onclick="previewMaterial('${material.titulo.replace(/'/g, "\\'")}')">
               Ver en navegador
             </button>
           </div>
@@ -827,53 +828,32 @@
       renderMaterialesPorTema(temaId);
     }
 
-    function previewMaterial(titulo, tipo, archivoNombre) {
-      const url = `https://pub-416d83b866c549e98ae0b6fdb727da1c.r2.dev/curso-1/tema-1/${archivoNombre}`;
-      const extension = (archivoNombre.split('.').pop() || '').toLowerCase();
-
-      if (extension === 'pdf') {
-        viewerBox.innerHTML = `
-          <div style="width:100%;">
-            <div style="margin-bottom:12px;">
-              <strong>${titulo}</strong>
-            </div>
-
-            <iframe
-              src="${url}"
-              width="100%"
-              height="700"
-              style="border:1px solid #ccc; border-radius:8px; background:white;"
-            ></iframe>
-
-            <div style="margin-top:12px;">
-              <a
-                href="${url}"
-                target="_blank"
-                download
-                style="display:inline-block; padding:10px 16px; background:#0f6cbd; color:white; text-decoration:none; border-radius:8px;"
-              >
-                Descargar documento
-              </a>
-            </div>
-          </div>
-        `;
-        return;
-      }
+    function previewMaterial(titulo) {
+      const url = "https://pub-416d83b866c549e98ae0b6fdb727da1c.r2.dev/curso-1/tema-1/2025-Guideline-Repositioning-25-Feb-2025.pdf";
 
       viewerBox.innerHTML = `
-        <div>
-          <strong>${titulo}</strong>
-          <br><br>
-          No hay vista previa disponible para este tipo de archivo.
-          <br><br>
-          <a
-            href="${url}"
-            target="_blank"
-            download
-            style="display:inline-block; padding:10px 16px; background:#0f6cbd; color:white; text-decoration:none; border-radius:8px;"
-          >
-            Descargar documento
-          </a>
+        <div style="width:100%;">
+          <div style="margin-bottom:12px;">
+            <strong>${titulo}</strong>
+          </div>
+
+          <iframe
+            src="${url}"
+            width="100%"
+            height="700"
+            style="border:1px solid #ccc; border-radius:8px; background:white;"
+          ></iframe>
+
+          <div style="margin-top:12px;">
+            <a
+              href="${url}"
+              target="_blank"
+              download
+              style="display:inline-block; padding:10px 16px; background:#0f6cbd; color:white; text-decoration:none; border-radius:8px;"
+            >
+              Descargar documento
+            </a>
+          </div>
         </div>
       `;
     }
