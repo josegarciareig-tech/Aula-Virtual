@@ -202,6 +202,12 @@
       color:white;
     }
 
+    .btn-small{
+      padding:8px 10px;
+      font-size:13px;
+      border-radius:10px;
+    }
+
     .btn[disabled]{
       opacity:.5;
       cursor:not-allowed;
@@ -376,7 +382,7 @@
 
     .course-layout{
       display:grid;
-      grid-template-columns:280px 1fr;
+      grid-template-columns:320px 1fr;
       gap:20px;
     }
 
@@ -397,9 +403,23 @@
       gap:10px;
     }
 
-    .topic-list button{
+    .topic-item{
       border:1px solid var(--line);
       background:var(--surface-2);
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .topic-item-top{
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+    }
+
+    .topic-main-btn{
+      flex:1;
+      border:1px solid var(--line);
+      background:transparent;
       color:var(--text);
       padding:12px;
       border-radius:12px;
@@ -408,7 +428,7 @@
       font-weight:600;
     }
 
-    .topic-list button.active{
+    .topic-main-btn.active{
       background:rgba(15,108,189,.12);
       border-color:rgba(15,108,189,.35);
       color:var(--primary);
@@ -623,7 +643,7 @@
         <div class="hero">
           <div class="card welcome">
             <h3>Bienvenido a AULA VIRTUAL</h3>
-            <p>Ahora esta pantalla permitirá que el profesor pueda editar cursos y subir materiales directamente desde la web.</p>
+            <p>Ahora puedes gestionar cursos, temas y materiales directamente desde la web como profesor.</p>
 
             <div class="status-box">
               <strong>Modo profesor</strong><br>
@@ -705,6 +725,28 @@
             <button class="btn btn-secondary" onclick="toggleEditarCurso()">Cerrar</button>
           </div>
           <div id="editCursoEstado" class="help"></div>
+
+          <hr style="margin:18px 0; border:none; border-top:1px solid var(--line);">
+
+          <h4>Añadir tema nuevo</h4>
+          <div class="grid-2">
+            <input type="text" id="nuevoTemaTitulo" placeholder="Título del nuevo tema" />
+            <input type="text" id="nuevoTemaDescripcion" placeholder="Descripción del nuevo tema" />
+          </div>
+          <div class="toolbar-profesor">
+            <button class="btn btn-primary" onclick="crearTema()">Añadir tema</button>
+          </div>
+          <div id="crearTemaEstado" class="help"></div>
+
+          <hr style="margin:18px 0; border:none; border-top:1px solid var(--line);">
+
+          <h4>Borrar tema</h4>
+          <div class="grid-2">
+            <select id="deleteTemaSelect"></select>
+            <button class="btn btn-danger" onclick="borrarTemaDesdePanel()">Borrar tema seleccionado</button>
+          </div>
+          <div class="help">Al borrar un tema, también se borran sus materiales.</div>
+          <div id="borrarTemaEstado" class="help"></div>
         </div>
 
         <div id="panelSubirArchivo" class="panel-profesor card">
@@ -899,21 +941,42 @@
       }
     }
 
+    function llenarSelectBorrarTemas(temas) {
+      const select = document.getElementById('deleteTemaSelect');
+      if (!select) return;
+
+      if (!temas.length) {
+        select.innerHTML = '<option value="">No hay temas</option>';
+        return;
+      }
+
+      select.innerHTML = temas.map(t => `
+        <option value="${t.id}">${t.titulo}</option>
+      `).join('');
+    }
+
     function renderTemas(temas) {
       const topicList = document.getElementById('topicList');
 
       if (!temas.length) {
         topicList.innerHTML = '<div class="status-box">No hay temas para este curso.</div>';
+        llenarSelectBorrarTemas([]);
         return;
       }
 
       topicList.innerHTML = temas.map((tema, index) => `
-        <button class="${index === 0 ? 'active' : ''}" onclick="selectTema(${tema.id}, this)">
-          ${tema.titulo}
-        </button>
+        <div class="topic-item">
+          <div class="topic-item-top">
+            <button class="topic-main-btn ${index === 0 ? 'active' : ''}" onclick="selectTema(${tema.id}, this)">
+              ${tema.titulo}
+            </button>
+            ${profesorActivo ? `<button class="btn btn-danger btn-small" onclick="borrarTemaDirecto(${tema.id})">Borrar</button>` : ''}
+          </div>
+        </div>
       `).join('');
 
       currentTemaId = temas[0].id;
+      llenarSelectBorrarTemas(temas);
     }
 
     function renderMaterialesPorTema(temaId) {
@@ -959,7 +1022,7 @@
 
     function selectTema(temaId, btn) {
       currentTemaId = temaId;
-      document.querySelectorAll('#topicList button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.topic-main-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderMaterialesPorTema(temaId);
     }
@@ -1017,6 +1080,79 @@
         cargarCursos();
       } catch (error) {
         document.getElementById('editCursoEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    async function crearTema() {
+      try {
+        const titulo = document.getElementById('nuevoTemaTitulo').value.trim();
+        const descripcion = document.getElementById('nuevoTemaDescripcion').value.trim();
+
+        const res = await fetch('/api/crear-tema', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profesor_key: profesorKey,
+            curso_id: currentCursoId,
+            titulo,
+            descripcion
+          })
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || 'No se pudo crear el tema');
+
+        document.getElementById('crearTemaEstado').innerHTML = '<span class="ok">Tema creado correctamente.</span>';
+        document.getElementById('nuevoTemaTitulo').value = '';
+        document.getElementById('nuevoTemaDescripcion').value = '';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('crearTemaEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    async function borrarTemaRequest(temaId) {
+      const res = await fetch('/api/borrar-tema', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profesor_key: profesorKey,
+          tema_id: temaId
+        })
+      });
+
+      return await res.json();
+    }
+
+    async function borrarTemaDirecto(temaId) {
+      try {
+        if (!confirm('¿Seguro que quieres borrar este tema y sus materiales?')) return;
+
+        const data = await borrarTemaRequest(temaId);
+        if (!data.ok) throw new Error(data.error || 'No se pudo borrar el tema');
+
+        document.getElementById('borrarTemaEstado').innerHTML = '<span class="ok">Tema borrado correctamente.</span>';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('borrarTemaEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    async function borrarTemaDesdePanel() {
+      try {
+        const temaId = Number(document.getElementById('deleteTemaSelect').value);
+        if (!temaId) throw new Error('Selecciona un tema.');
+
+        if (!confirm('¿Seguro que quieres borrar el tema seleccionado y sus materiales?')) return;
+
+        const data = await borrarTemaRequest(temaId);
+        if (!data.ok) throw new Error(data.error || 'No se pudo borrar el tema');
+
+        document.getElementById('borrarTemaEstado').innerHTML = '<span class="ok">Tema borrado correctamente.</span>';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('borrarTemaEstado').innerHTML = `<span class="error">${error.message}</span>`;
       }
     }
 
