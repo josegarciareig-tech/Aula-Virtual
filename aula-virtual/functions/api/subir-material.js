@@ -43,14 +43,16 @@ export async function onRequestPost(context) {
     });
 
     const result = await env.DB.prepare(`
-      INSERT INTO materiales (tema_id, titulo, descripcion, tipo, archivo_nombre)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO materiales (curso_id, tema_id, titulo, descripcion, tipo, archivo_nombre, archivo_ruta)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `).bind(
+      curso_id,
       tema_id,
       titulo,
       descripcion,
       tipo,
-      safeName
+      safeName,
+      objectKey
     ).run();
 
     return Response.json({
