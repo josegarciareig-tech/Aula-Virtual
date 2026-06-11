@@ -16,12 +16,12 @@
       --text:#182230;
       --muted:#5f6b7a;
       --primary:#0f6cbd;
-      --primary-2:#115ea3;
       --accent:#ff8c42;
-      --success:#1f845a;
       --shadow:0 10px 30px rgba(15, 25, 40, 0.08);
       --radius:16px;
       --sidebar:270px;
+      --danger:#c62828;
+      --success:#1f845a;
     }
 
     [data-theme="dark"]{
@@ -32,14 +32,13 @@
       --text:#edf2f7;
       --muted:#9fb0c5;
       --primary:#4ea1ff;
-      --primary-2:#7ab8ff;
       --accent:#ff9d5c;
-      --success:#4ecb8d;
       --shadow:0 10px 30px rgba(0, 0, 0, 0.35);
+      --danger:#ff6b6b;
+      --success:#4ecb8d;
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
-
     body{
       font-family:'Inter',sans-serif;
       background:var(--bg);
@@ -158,13 +157,25 @@
       flex-wrap:wrap;
     }
 
-    .search{
+    .search,
+    input,
+    textarea,
+    select{
       background:var(--surface);
       border:1px solid var(--line);
       padding:12px 14px;
       border-radius:12px;
-      min-width:240px;
       color:var(--text);
+      width:100%;
+    }
+
+    textarea{
+      min-height:100px;
+      resize:vertical;
+    }
+
+    .search{
+      min-width:240px;
     }
 
     .btn{
@@ -184,6 +195,16 @@
       background:var(--surface);
       border:1px solid var(--line);
       color:var(--text);
+    }
+
+    .btn-danger{
+      background:var(--danger);
+      color:white;
+    }
+
+    .btn[disabled]{
+      opacity:.5;
+      cursor:not-allowed;
     }
 
     .hero{
@@ -453,6 +474,53 @@
       padding:16px;
       background:var(--surface-2);
       color:var(--muted);
+      margin-bottom:12px;
+    }
+
+    .toolbar-profesor{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .panel-profesor{
+      margin-top:18px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+      display:none;
+    }
+
+    .panel-profesor.active{
+      display:block;
+    }
+
+    .panel-profesor h4{
+      margin-bottom:12px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .help{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .ok{
+      color:var(--success);
+      font-weight:600;
+    }
+
+    .error{
+      color:var(--danger);
+      font-weight:600;
     }
 
     .mobile-top{
@@ -462,7 +530,8 @@
     @media (max-width: 1100px){
       .hero,
       .course-layout,
-      .courses{
+      .courses,
+      .grid-2{
         grid-template-columns:1fr;
       }
     }
@@ -547,15 +616,24 @@
           </div>
           <div class="top-actions">
             <input class="search" type="text" placeholder="Buscar curso o documento..." />
-            <button class="btn btn-primary">+ Nuevo recurso</button>
+            <button class="btn btn-primary" onclick="openCourseFromId(1)">Entrar al curso</button>
           </div>
         </div>
 
         <div class="hero">
           <div class="card welcome">
             <h3>Bienvenido a AULA VIRTUAL</h3>
-            <p>Esta pantalla ya está conectada con la API real de Cloudflare Pages + D1 para cargar cursos, temas y materiales desde la base de datos.</p>
-            <button class="btn btn-primary" onclick="openCourseFromId(1)">Entrar al curso ejemplo</button>
+            <p>Ahora esta pantalla permitirá que el profesor pueda editar cursos y subir materiales directamente desde la web.</p>
+
+            <div class="status-box">
+              <strong>Modo profesor</strong><br>
+              <div class="grid-2" style="margin-top:12px;">
+                <input type="password" id="profesorKey" placeholder="Escribe tu clave de profesor" />
+                <button class="btn btn-primary" onclick="activarModoProfesor()">Activar modo profesor</button>
+              </div>
+              <div class="help">Solo tú debes conocer esta clave.</div>
+              <div id="profesorEstado" class="help"></div>
+            </div>
 
             <div class="stats">
               <div class="stat">
@@ -576,18 +654,9 @@
           <div class="card side-panel">
             <h4>Actividad reciente</h4>
             <div class="mini-list">
-              <div class="mini-item">
-                Tema 1 actualizado
-                <small>Hoy · Curso de heridas</small>
-              </div>
-              <div class="mini-item">
-                Nuevo PDF subido
-                <small>Ayer · Biofilm y antisepsia</small>
-              </div>
-              <div class="mini-item">
-                Presentación disponible
-                <small>Hace 2 días · Casos clínicos</small>
-              </div>
+              <div class="mini-item">Tema 1 actualizado<small>Hoy · Curso de heridas</small></div>
+              <div class="mini-item">Nuevo PDF subido<small>Ayer · Biofilm y antisepsia</small></div>
+              <div class="mini-item">Presentación disponible<small>Hace 2 días · Casos clínicos</small></div>
             </div>
           </div>
         </div>
@@ -620,9 +689,49 @@
             <p id="cursoDescripcion">Cargando datos del curso...</p>
           </div>
           <div class="top-actions">
-            <button class="btn btn-secondary">Editar curso</button>
-            <button class="btn btn-primary">Subir archivo</button>
+            <button class="btn btn-secondary" id="btnEditarCurso" onclick="toggleEditarCurso()" disabled>Editar curso</button>
+            <button class="btn btn-primary" id="btnSubirArchivo" onclick="toggleSubirArchivo()" disabled>Subir archivo</button>
           </div>
+        </div>
+
+        <div id="panelEditarCurso" class="panel-profesor card">
+          <h4>Editar curso</h4>
+          <div class="grid-2">
+            <input type="text" id="editTitulo" placeholder="Nuevo título del curso" />
+            <input type="text" id="editDescripcion" placeholder="Nueva descripción del curso" />
+          </div>
+          <div class="toolbar-profesor">
+            <button class="btn btn-primary" onclick="guardarCurso()">Guardar cambios</button>
+            <button class="btn btn-secondary" onclick="toggleEditarCurso()">Cerrar</button>
+          </div>
+          <div id="editCursoEstado" class="help"></div>
+        </div>
+
+        <div id="panelSubirArchivo" class="panel-profesor card">
+          <h4>Subir material</h4>
+          <div class="grid-2">
+            <input type="text" id="uploadTitulo" placeholder="Título del material" />
+            <select id="uploadTipo">
+              <option value="pdf">PDF</option>
+              <option value="docx">DOCX</option>
+              <option value="pptx">PPTX</option>
+              <option value="html">HTML</option>
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+            </select>
+          </div>
+          <div style="margin-top:12px;">
+            <textarea id="uploadDescripcion" placeholder="Descripción del material"></textarea>
+          </div>
+          <div style="margin-top:12px;">
+            <input type="file" id="uploadFile" />
+          </div>
+          <div class="help">Se subirá al curso actual y al tema seleccionado.</div>
+          <div class="toolbar-profesor">
+            <button class="btn btn-primary" onclick="subirMaterial()">Subir ahora</button>
+            <button class="btn btn-secondary" onclick="toggleSubirArchivo()">Cerrar</button>
+          </div>
+          <div id="uploadEstado" class="help"></div>
         </div>
 
         <div class="course-layout">
@@ -679,6 +788,9 @@
 
     let currentCourseData = null;
     let currentTemaId = null;
+    let currentCursoId = 1;
+    let profesorActivo = false;
+    let profesorKey = '';
 
     links.forEach(link => {
       link.addEventListener('click', () => {
@@ -692,7 +804,7 @@
         document.getElementById(view).classList.add('active');
 
         if (view === 'curso-demo') {
-          loadCursoDetalle(1);
+          loadCursoDetalle(currentCursoId);
         }
       });
     });
@@ -706,6 +818,7 @@
     }
 
     function openCourseFromId(id) {
+      currentCursoId = id;
       activateView('curso-demo');
       loadCursoDetalle(id);
     }
@@ -717,6 +830,31 @@
 
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+
+    function activarModoProfesor() {
+      const key = document.getElementById('profesorKey').value.trim();
+      profesorKey = key;
+
+      if (!key) {
+        document.getElementById('profesorEstado').innerHTML = '<span class="error">Escribe tu clave de profesor.</span>';
+        return;
+      }
+
+      profesorActivo = true;
+      document.getElementById('btnEditarCurso').disabled = false;
+      document.getElementById('btnSubirArchivo').disabled = false;
+      document.getElementById('profesorEstado').innerHTML = '<span class="ok">Modo profesor activado.</span>';
+    }
+
+    function toggleEditarCurso() {
+      if (!profesorActivo) return;
+      document.getElementById('panelEditarCurso').classList.toggle('active');
+    }
+
+    function toggleSubirArchivo() {
+      if (!profesorActivo) return;
+      document.getElementById('panelSubirArchivo').classList.toggle('active');
+    }
 
     function getCover(index) {
       const covers = [
@@ -751,9 +889,7 @@
         const res = await fetch('/api/cursos');
         const data = await res.json();
 
-        if (!data.ok) {
-          throw new Error(data.error || 'No se pudieron cargar los cursos');
-        }
+        if (!data.ok) throw new Error(data.error || 'No se pudieron cargar los cursos');
 
         renderCursos(data.cursos || []);
       } catch (error) {
@@ -836,14 +972,12 @@
           <div style="margin-bottom:12px;">
             <strong>${titulo}</strong>
           </div>
-
           <iframe
             src="${url}"
             width="100%"
             height="700"
             style="border:1px solid #ccc; border-radius:8px; background:white;"
           ></iframe>
-
           <div style="margin-top:12px;">
             <a
               href="${url}"
@@ -858,6 +992,72 @@
       `;
     }
 
+    async function guardarCurso() {
+      try {
+        const titulo = document.getElementById('editTitulo').value.trim();
+        const descripcion = document.getElementById('editDescripcion').value.trim();
+
+        const res = await fetch('/api/editar-curso', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profesor_key: profesorKey,
+            curso_id: currentCursoId,
+            titulo,
+            descripcion
+          })
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || 'No se pudo editar el curso');
+
+        document.getElementById('editCursoEstado').innerHTML = '<span class="ok">Curso actualizado correctamente.</span>';
+        loadCursoDetalle(currentCursoId);
+        cargarCursos();
+      } catch (error) {
+        document.getElementById('editCursoEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    async function subirMaterial() {
+      try {
+        const titulo = document.getElementById('uploadTitulo').value.trim();
+        const descripcion = document.getElementById('uploadDescripcion').value.trim();
+        const tipo = document.getElementById('uploadTipo').value;
+        const file = document.getElementById('uploadFile').files[0];
+
+        if (!currentTemaId) throw new Error('Selecciona primero un tema.');
+        if (!file) throw new Error('Selecciona un archivo.');
+
+        const fd = new FormData();
+        fd.append('profesor_key', profesorKey);
+        fd.append('curso_id', currentCursoId);
+        fd.append('tema_id', currentTemaId);
+        fd.append('titulo', titulo);
+        fd.append('descripcion', descripcion);
+        fd.append('tipo', tipo);
+        fd.append('file', file);
+
+        const res = await fetch('/api/subir-material', {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || 'No se pudo subir el archivo');
+
+        document.getElementById('uploadEstado').innerHTML = '<span class="ok">Archivo subido correctamente.</span>';
+        document.getElementById('uploadTitulo').value = '';
+        document.getElementById('uploadDescripcion').value = '';
+        document.getElementById('uploadFile').value = '';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('uploadEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
     async function loadCursoDetalle(id = 1) {
       try {
         document.getElementById('cursoTitulo').textContent = 'Cargando curso...';
@@ -868,15 +1068,15 @@
         const res = await fetch(`/api/curso?id=${id}`);
         const data = await res.json();
 
-        if (!data.ok) {
-          throw new Error(data.error || 'No se pudo cargar el curso');
-        }
+        if (!data.ok) throw new Error(data.error || 'No se pudo cargar el curso');
 
         currentCourseData = data;
         document.getElementById('cursoTitulo').textContent = data.curso?.titulo || 'Curso';
         document.getElementById('cursoDescripcion').textContent = data.curso?.descripcion || 'Sin descripción.';
         document.getElementById('statTemas').textContent = (data.temas || []).length;
         document.getElementById('statMateriales').textContent = (data.materiales || []).length;
+        document.getElementById('editTitulo').value = data.curso?.titulo || '';
+        document.getElementById('editDescripcion').value = data.curso?.descripcion || '';
 
         renderTemas(data.temas || []);
         if ((data.temas || []).length) {
