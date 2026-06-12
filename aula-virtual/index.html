@@ -1,421 +1,469 @@
+rm -f index.html && cat > index.html <<'EOF'
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aula Virtual</title>
+  <title>Aula Virtual Docente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#f3f5f8;
-      --panel:#ffffff;
-      --line:#d9e1ea;
-      --text:#16202a;
-      --muted:#6c7a89;
-      --primary:#0f6cbd;
-      --primary-2:#2d7fc9;
-      --accent:#f49a52;
-      --sidebar-1:#0a1730;
-      --sidebar-2:#0d2347;
-      --sidebar-text:#eef4ff;
-      --sidebar-muted:#9db2cf;
-      --ok:#1f7a1f;
-      --error:#b42318;
-      --shadow:0 8px 30px rgba(15,23,42,.08);
+    :root, [data-theme="light"] {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-soft: #eef3f9;
+      --surface-strong: #e3ebf5;
+      --text: #16202a;
+      --muted: #607284;
+      --border: rgba(22,32,42,.10);
+      --primary: #0f6cbd;
+      --primary-hover: #0b5a9e;
+      --accent: #f49a52;
+      --success: #1f7a1f;
+      --danger: #b42318;
+      --sidebar-1: #0b1730;
+      --sidebar-2: #0e2346;
+      --sidebar-text: #eef4ff;
+      --sidebar-muted: #9eb4d1;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, .06);
+      --shadow-md: 0 18px 50px rgba(15, 23, 42, .10);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
     }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      background:var(--bg);
-      color:var(--text);
+    [data-theme="dark"] {
+      --bg: #101722;
+      --surface: #182231;
+      --surface-soft: #1d2a3b;
+      --surface-strong: #223247;
+      --text: #edf3fb;
+      --muted: #a4b6ca;
+      --border: rgba(255,255,255,.10);
+      --primary: #63a8e9;
+      --primary-hover: #84bbef;
+      --accent: #f6ae73;
+      --success: #70c070;
+      --danger: #ff8a80;
+      --sidebar-1: #08111f;
+      --sidebar-2: #0a1830;
+      --sidebar-text: #eef4ff;
+      --sidebar-muted: #9eb4d1;
+      --shadow-sm: 0 8px 24px rgba(0, 0, 0, .24);
+      --shadow-md: 0 18px 50px rgba(0, 0, 0, .30);
     }
 
-    .app{
-      min-height:100vh;
-      display:grid;
-      grid-template-columns:290px 1fr;
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button, input, textarea, select { font: inherit; }
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .ok { color: var(--success); font-weight: 700; }
+    .error { color: var(--danger); font-weight: 700; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 300px 1fr;
     }
 
-    .sidebar{
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      color: var(--sidebar-text);
       background:
-        radial-gradient(circle at top left, rgba(67,128,255,.18), transparent 30%),
-        linear-gradient(180deg, var(--sidebar-1) 0%, #09152d 45%, var(--sidebar-2) 100%);
-      color:var(--sidebar-text);
-      padding:26px 18px;
-      position:sticky;
-      top:0;
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      border-right:1px solid rgba(255,255,255,.06);
+        radial-gradient(circle at top left, rgba(102, 170, 255, .18), transparent 28%),
+        linear-gradient(180deg, var(--sidebar-1) 0%, #091329 52%, var(--sidebar-2) 100%);
+      border-right: 1px solid rgba(255,255,255,.06);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
     }
 
-    .brand{
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:28px;
-      padding:6px 8px 16px 8px;
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 8px;
     }
 
-    .brand-badge{
-      width:36px;
-      height:36px;
-      border-radius:12px;
-      background:linear-gradient(135deg, #6aa6ff, #ff9c5c);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-weight:800;
-      box-shadow:0 8px 18px rgba(0,0,0,.25);
-      flex:0 0 auto;
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6ea9ff, #ff9f5c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(0,0,0,.25);
     }
 
-    .brand h1{
-      margin:0;
-      font-size:30px;
-      line-height:1;
-      letter-spacing:.2px;
+    .brand h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1;
     }
 
-    .brand p{
-      margin:6px 0 0 0;
-      font-size:13px;
-      color:var(--sidebar-muted);
+    .brand p, .sidebar-footer, .nav-label { color: var(--sidebar-muted); }
+    .brand p { margin: 6px 0 0; font-size: 13px; }
+    .nav-label {
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-size: 11px;
+      margin: 0 10px 10px;
     }
 
-    .nav-section{ margin-top:18px; }
+    .nav { display: flex; flex-direction: column; gap: 6px; }
+    .nav button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: var(--sidebar-text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .nav button:hover, .nav button.active { background: rgba(255,255,255,.10); }
 
-    .nav-label{
-      color:var(--sidebar-muted);
-      font-size:11px;
-      letter-spacing:1.3px;
-      text-transform:uppercase;
-      margin:0 10px 10px;
+    .theme-toggle {
+      margin-top: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--sidebar-text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      width: 100%;
     }
 
-    .nav{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
+    .main { padding: 24px; }
+    .shell {
+      min-height: calc(100vh - 48px);
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
     }
 
-    .nav button{
-      width:100%;
-      text-align:left;
-      border:none;
-      background:none;
-      color:var(--sidebar-text);
-      padding:12px 14px;
-      border-radius:14px;
-      font:inherit;
-      cursor:pointer;
-      transition:.18s ease;
-      opacity:.92;
+    .hero {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.06;
+    }
+    .hero p { margin: 0; color: var(--muted); }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) minmax(320px, 1fr) minmax(300px, 380px);
+      gap: 20px;
+      align-items: start;
+    }
+    .stack { display: flex; flex-direction: column; gap: 20px; }
+
+    .panel, .course-feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .panel-body, .course-content { padding: 18px; }
+    .course-cover {
+      height: 176px;
+      background: linear-gradient(120deg, var(--primary), #7b8ca3 50%, var(--accent));
     }
 
-    .nav button:hover{
-      background:rgba(255,255,255,.08);
-      opacity:1;
+    .pill {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e9f3ff;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
     }
 
-    .nav button.active{
-      background:rgba(255,255,255,.10);
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    .progress {
+      margin-top: 12px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--surface-strong);
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      width: 58%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 999px;
     }
 
-    .sidebar-footer{
-      margin-top:auto;
-      padding:16px 10px 6px;
-      color:var(--sidebar-muted);
-      font-size:12px;
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .section-title h3 { margin: 0; font-size: 22px; }
+    .subtle { font-size: 13px; color: var(--muted); }
+
+    .helper, .status-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .status-box { background: #fff7e8; color: #7a5600; border-color: #f0d6a0; }
+
+    .course-list, .topic-list, .material-list, .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .main{
-      padding:26px;
+    .course-item, .topic-item, .material-item, .event-item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      padding: 14px;
+      transition: .18s ease;
+    }
+    .course-item.active, .topic-item.active {
+      border-color: color-mix(in srgb, var(--primary) 35%, white);
+      background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+    }
+    .course-item button, .topic-item button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
     }
 
-    .shell{
-      background:rgba(255,255,255,.55);
-      border:1px solid rgba(15,23,42,.06);
-      border-radius:18px;
-      min-height:calc(100vh - 52px);
-      padding:18px;
+    .item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
     }
 
-    .hero{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:20px;
-      margin-bottom:22px;
+    .type-badge {
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: #476070;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .4px;
     }
 
-    .hero h2{
-      margin:0 0 8px 0;
-      font-size:42px;
-      line-height:1.05;
-      letter-spacing:-.4px;
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 700;
+      transition: .18s ease;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      background: var(--surface-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
 
-    .hero p{
-      margin:0;
-      color:var(--muted);
-      font-size:16px;
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+    .viewer-box {
+      min-height: 640px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .viewer-empty {
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+      padding: 40px;
+    }
+    .viewer-image {
+      width: 100%;
+      max-height: 720px;
+      object-fit: contain;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: block;
     }
 
-    .dashboard{
-      display:grid;
-      grid-template-columns:minmax(320px,430px) minmax(360px,1fr) minmax(320px,420px);
-      gap:20px;
-      align-items:start;
+    .form-grid { display: grid; gap: 12px; }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+    textarea { min-height: 96px; resize: vertical; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    .stack{
-      display:flex;
-      flex-direction:column;
-      gap:20px;
+    .calendar-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
     }
 
-    .panel, .course-feature{
-      background:var(--panel);
-      border:1px solid rgba(15,23,42,.06);
-      border-radius:20px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
+    .year-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
 
-    .panel-body{ padding:18px; }
-
-    .course-cover{
-      height:172px;
-      background:linear-gradient(120deg, var(--primary-2), #798aa3 48%, var(--accent));
+    .month-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .course-content{ padding:16px; }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#eaf4ff;
-      color:var(--primary);
-      font-size:12px;
-      font-weight:700;
-      margin-bottom:10px;
+    .month-card h4 {
+      margin: 0 0 12px;
+      font-size: 18px;
     }
 
-    .progress{
-      margin-top:12px;
-      height:8px;
-      border-radius:999px;
-      overflow:hidden;
-      background:#e7edf5;
+    .month-weekdays, .month-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
     }
 
-    .progress span{
-      display:block;
-      width:42%;
-      height:100%;
-      background:linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius:999px;
+    .weekday {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      padding-bottom: 4px;
     }
 
-    .course-list,.topic-list,.material-list{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+    .day-cell {
+      min-height: 54px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      padding: 6px;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+    .day-cell:hover { border-color: var(--primary); }
+    .day-cell.empty { visibility: hidden; }
+    .day-cell.has-event {
+      background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+      border-color: color-mix(in srgb, var(--accent) 45%, white);
+    }
+    .day-number {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .day-mini {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.2;
     }
 
-    .course-item,.topic-item,.material-item{
-      border:1px solid rgba(15,23,42,.08);
-      border-radius:16px;
-      background:var(--panel);
-      padding:14px;
-      transition:.18s ease;
+    .login-box {
+      display: grid;
+      gap: 12px;
+      max-width: 420px;
     }
 
-    .course-item.active,.topic-item.active{
-      border-color:#bfd7f4;
-      background:#f5faff;
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 700;
     }
 
-    .course-item button,.topic-item button{
-      width:100%;
-      text-align:left;
-      background:none;
-      border:none;
-      padding:0;
-      cursor:pointer;
-      color:inherit;
-      font:inherit;
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 8px 10px 4px;
+      font-size: 12px;
+      line-height: 1.5;
     }
 
-    .item-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:8px;
+    @media (max-width: 1240px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .year-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .viewer-box { min-height: 460px; }
     }
 
-    .type-badge{
-      background:#eff4f8;
-      color:#46576a;
-      border-radius:999px;
-      padding:5px 9px;
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border:none;
-      border-radius:12px;
-      padding:11px 14px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:14px;
-      text-decoration:none;
-      transition:.18s ease;
-    }
-
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-    }
-
-    .btn-primary:hover{ background:#0c5ea6; }
-
-    .btn-secondary{
-      background:#eef2f7;
-      color:#1e2d3d;
-      border:1px solid #dbe5ef;
-    }
-
-    .btn-secondary:hover{ background:#e7edf5; }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .viewer-box{
-      min-height:640px;
-      background:#f9fbfd;
-      border:1px solid #e2e8f0;
-      border-radius:18px;
-      padding:14px;
-    }
-
-    .viewer-empty{
-      min-height:600px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      color:var(--muted);
-      padding:40px;
-    }
-
-    .viewer-image{
-      width:100%;
-      max-height:720px;
-      object-fit:contain;
-      border-radius:14px;
-      border:1px solid #dbe5ef;
-      background:#fff;
-      display:block;
-    }
-
-    .form-grid{
-      display:grid;
-      gap:12px;
-    }
-
-    label{
-      display:block;
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:6px;
-      color:#314152;
-    }
-
-    input, textarea, select{
-      width:100%;
-      border:1px solid #d8e0ea;
-      border-radius:12px;
-      padding:11px 12px;
-      font:inherit;
-      background:#fff;
-      color:var(--text);
-    }
-
-    textarea{
-      min-height:96px;
-      resize:vertical;
-    }
-
-    .status-box{
-      background:#fff7e8;
-      color:#7a5600;
-      border:1px solid #f0d6a0;
-      border-radius:14px;
-      padding:14px;
-      line-height:1.5;
-    }
-
-    .ok{ color:var(--ok); font-weight:700; }
-    .error{ color:var(--error); font-weight:700; }
-
-    .section-title{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:12px;
-    }
-
-    .section-title h3{
-      margin:0;
-      font-size:22px;
-    }
-
-    .subtle{
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .helper{
-      background:#f8fafc;
-      border:1px solid #e5ebf3;
-      border-radius:14px;
-      padding:12px 14px;
-      color:#526272;
-      font-size:14px;
-    }
-
-    .hidden{ display:none !important; }
-
-    @media (max-width: 1240px){
-      .dashboard{ grid-template-columns:1fr; }
-      .viewer-box{ min-height:460px; }
-    }
-
-    @media (max-width: 900px){
-      .app{ grid-template-columns:1fr; }
-      .sidebar{ position:relative; height:auto; }
-      .hero h2{ font-size:32px; }
-      .main{ padding:14px; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .main { padding: 14px; }
+      .hero h2 { font-size: 32px; }
+      .grid-2, .year-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -426,31 +474,33 @@
         <div class="brand-badge">AV</div>
         <div>
           <h1>AULA VIRTUAL</h1>
-          <p>Campus docente</p>
+          <p>Campus docente con control por roles</p>
         </div>
       </div>
 
-      <div class="nav-section">
+      <div>
         <div class="nav-label">Principal</div>
         <div class="nav">
           <button type="button" class="active" data-view-btn="dashboard" onclick="setView('dashboard', this)">Dashboard</button>
-          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Mis cursos</button>
-          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Curso ejemplo</button>
-          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Calendario</button>
-          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Archivos</button>
+          <button type="button" data-view-btn="mis-cursos" onclick="setView('mis-cursos', this)">Cursos</button>
+          <button type="button" data-view-btn="calendario" onclick="setView('calendario', this)">Calendario</button>
+          <button type="button" data-view-btn="archivos" data-only-profesor onclick="setView('archivos', this)">Archivos</button>
         </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-label">Configuración</div>
+      <div>
+        <div class="nav-label">Acceso</div>
         <div class="nav">
+          <button type="button" data-view-btn="acceso" onclick="setView('acceso', this)">Modo profesor</button>
+          <button type="button" onclick="setModoAlumno()">Modo alumno</button>
           <button type="button" data-view-btn="perfil" onclick="setView('perfil', this)">Perfil</button>
-          <button type="button" onclick="toggleTheme()">Cambiar modo</button>
         </div>
       </div>
+
+      <button class="theme-toggle" type="button" onclick="toggleTheme()">Cambiar tema</button>
 
       <div class="sidebar-footer">
-        Aula Virtual · Panel docente
+        Aula Virtual · Gestión docente y consulta para alumnado
       </div>
     </aside>
 
@@ -459,9 +509,10 @@
         <section id="view-dashboard" class="view">
           <section class="hero">
             <div>
-              <h2>Mis cursos</h2>
-              <p>Aquí podrás ver todos los cursos cargados desde la API.</p>
+              <h2>Panel general</h2>
+              <p>Ahora puedes crear cursos, organizar un calendario anual y diferenciar permisos entre profesor y alumno.</p>
             </div>
+            <div class="mode-badge" id="dashboardModo">Modo actual: Alumno</div>
           </section>
 
           <section class="dashboard">
@@ -469,20 +520,84 @@
               <div class="course-feature">
                 <div class="course-cover"></div>
                 <div class="course-content">
-                  <div class="pill">Activo</div>
+                  <div class="pill">Aula activa</div>
                   <h3 id="heroCursoTitulo" style="margin:0 0 8px 0; font-size:32px;">Cargando curso...</h3>
                   <p id="heroCursoDescripcion" class="muted">Esperando datos del curso.</p>
                   <div class="progress"><span></span></div>
                 </div>
               </div>
+            </div>
 
+            <div class="stack">
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Cursos</h3>
+                    <h3>Visor</h3>
+                    <span class="subtle">Previsualización</span>
+                  </div>
+                  <div id="viewerBox" class="viewer-box">
+                    <div class="viewer-empty">Selecciona un material en Cursos para abrirlo.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Actividad</h3>
+                    <span class="subtle">Resumen funcional</span>
+                  </div>
+                  <div class="helper" id="dashboardResumen">
+                    Preparando datos del aula.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-mis-cursos" class="view hidden">
+          <section class="hero">
+            <div>
+              <h2>Cursos</h2>
+              <p>El profesor puede crear cursos, temas y materiales. El alumno solo puede consultar el contenido publicado.</p>
+            </div>
+          </section>
+
+          <section class="dashboard">
+            <div class="stack">
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Listado de cursos</h3>
                     <span id="cursosEstado" class="subtle">Cargando...</span>
                   </div>
                   <div id="cursosList" class="course-list"></div>
+                </div>
+              </div>
+
+              <div class="panel" data-only-profesor>
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Crear curso</h3>
+                    <span class="subtle">Nuevo curso desde la web</span>
+                  </div>
+                  <div class="form-grid">
+                    <div>
+                      <label for="cursoTituloInput">Título del curso</label>
+                      <input id="cursoTituloInput" type="text" placeholder="Ej. Cuidados de heridas avanzados" />
+                    </div>
+                    <div>
+                      <label for="cursoDescripcionInput">Descripción</label>
+                      <textarea id="cursoDescripcionInput" placeholder="Descripción general del curso"></textarea>
+                    </div>
+                    <div class="actions">
+                      <button class="btn btn-primary" type="button" onclick="crearCurso()">Añadir curso</button>
+                    </div>
+                    <div id="cursoEstado" class="subtle"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -522,19 +637,7 @@
             </div>
 
             <div class="stack">
-              <div class="panel">
-                <div class="panel-body">
-                  <div class="section-title">
-                    <h3>Visor</h3>
-                    <span class="subtle">Previsualización</span>
-                  </div>
-                  <div id="viewerBox" class="viewer-box">
-                    <div class="viewer-empty">Selecciona un material para abrirlo.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="panel">
+              <div class="panel" data-only-profesor>
                 <div class="panel-body">
                   <div class="section-title">
                     <h3>Crear tema</h3>
@@ -550,18 +653,18 @@
                       <textarea id="temaDescripcion" placeholder="Descripción del tema"></textarea>
                     </div>
                     <div class="actions">
-                      <button class="btn btn-primary" onclick="crearTema()">Crear tema</button>
+                      <button class="btn btn-primary" type="button" onclick="crearTema()">Crear tema</button>
                     </div>
                     <div id="temaEstado" class="subtle"></div>
                   </div>
                 </div>
               </div>
 
-              <div class="panel">
+              <div class="panel" data-only-profesor>
                 <div class="panel-body">
                   <div class="section-title">
                     <h3>Subir material</h3>
-                    <span class="subtle">Bloquea dobles envíos</span>
+                    <span class="subtle">Acceso solo profesor</span>
                   </div>
                   <div class="form-grid">
                     <div>
@@ -589,7 +692,7 @@
                       <input id="uploadFile" type="file" />
                     </div>
                     <div class="actions">
-                      <button class="btn btn-primary" id="btnSubirMaterial" onclick="subirMaterial()">Subir ahora</button>
+                      <button class="btn btn-primary" id="btnSubirMaterial" type="button" onclick="subirMaterial()">Subir ahora</button>
                     </div>
                     <div id="uploadEstado" class="subtle"></div>
                   </div>
@@ -599,18 +702,138 @@
           </section>
         </section>
 
+        <section id="view-calendario" class="view hidden">
+          <section class="hero">
+            <div>
+              <h2>Calendario anual</h2>
+              <p>Visualiza todo el año en bloques mensuales y añade clases con fecha, hora y descripción.</p>
+            </div>
+          </section>
+
+          <div class="panel" style="margin-bottom:20px;" data-only-profesor>
+            <div class="panel-body">
+              <div class="section-title">
+                <h3>Programar clase</h3>
+                <span class="subtle">Edición desde la propia web</span>
+              </div>
+              <div class="form-grid">
+                <div class="grid-2">
+                  <div>
+                    <label for="eventoCurso">Curso</label>
+                    <select id="eventoCurso"></select>
+                  </div>
+                  <div>
+                    <label for="eventoFecha">Fecha</label>
+                    <input id="eventoFecha" type="date" />
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div>
+                    <label for="eventoHoraInicio">Hora inicio</label>
+                    <input id="eventoHoraInicio" type="time" />
+                  </div>
+                  <div>
+                    <label for="eventoHoraFin">Hora fin</label>
+                    <input id="eventoHoraFin" type="time" />
+                  </div>
+                </div>
+                <div>
+                  <label for="eventoTitulo">Título de la clase</label>
+                  <input id="eventoTitulo" type="text" placeholder="Ej. Seminario de biofilm" />
+                </div>
+                <div>
+                  <label for="eventoDescripcion">Descripción</label>
+                  <textarea id="eventoDescripcion" placeholder="Detalle de la sesión"></textarea>
+                </div>
+                <div class="actions">
+                  <button class="btn btn-primary" type="button" onclick="guardarEventoCalendario()">Guardar clase</button>
+                </div>
+                <div id="eventoEstado" class="subtle"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-bottom:20px;">
+            <div class="panel-body">
+              <div class="calendar-toolbar">
+                <div>
+                  <h3 id="calendarYearTitle" style="margin:0; font-size:24px;">Calendario 2026</h3>
+                  <div class="subtle">Haz clic sobre un día para cargarlo en el formulario.</div>
+                </div>
+                <div class="actions">
+                  <button class="btn btn-secondary" type="button" onclick="cambiarAnio(-1)">Año anterior</button>
+                  <button class="btn btn-secondary" type="button" onclick="volverAnioActual()">Año actual</button>
+                  <button class="btn btn-secondary" type="button" onclick="cambiarAnio(1)">Año siguiente</button>
+                </div>
+              </div>
+              <div id="yearCalendar" class="year-grid"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-body">
+              <div class="section-title">
+                <h3>Clases programadas</h3>
+                <span class="subtle" id="eventosResumen">Sin eventos</span>
+              </div>
+              <div id="eventosList" class="event-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-archivos" class="view hidden">
+          <section class="hero">
+            <div>
+              <h2>Archivos</h2>
+              <p>Vista restringida al profesor para futuras acciones globales sobre materiales.</p>
+            </div>
+          </section>
+          <div class="panel" data-only-profesor>
+            <div class="panel-body">
+              <div class="helper">
+                Esta sección sigue siendo simple, pero ya queda protegida para que el alumnado no vea funciones de administración.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-acceso" class="view hidden">
+          <section class="hero">
+            <div>
+              <h2>Acceso profesor</h2>
+              <p>Para activar el modo profesor hay que introducir la contraseña dentro de la propia web.</p>
+            </div>
+          </section>
+          <div class="panel">
+            <div class="panel-body">
+              <div class="login-box">
+                <div>
+                  <label for="profesorPassword">Contraseña del profesor</label>
+                  <input id="profesorPassword" type="password" placeholder="Introduce la contraseña" />
+                </div>
+                <div class="actions">
+                  <button class="btn btn-primary" type="button" onclick="activarModoProfesor()">Entrar como profesor</button>
+                  <button class="btn btn-secondary" type="button" onclick="setModoAlumno()">Salir a modo alumno</button>
+                </div>
+                <div id="loginEstado" class="subtle">Por defecto he dejado una contraseña editable en el script: <strong>docente2026</strong>.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="view-perfil" class="view hidden">
           <section class="hero">
             <div>
               <h2>Perfil</h2>
-              <p>Zona de configuración básica del profesor.</p>
+              <p>Resumen del acceso actual y de la clave docente cargada.</p>
             </div>
           </section>
           <div class="panel">
             <div class="panel-body">
               <div class="helper">
-                Esta sección es funcional como vista de navegación.  
-                Clave de profesor actual: <strong id="perfilProfesorKey">No definida</strong>
+                Rol activo: <strong id="perfilRol">Alumno</strong><br>
+                Clave de profesor para API: <strong id="perfilProfesorKey">No definida</strong><br>
+                Estado de edición: <strong id="perfilPermisos">Solo lectura</strong>
               </div>
             </div>
           </div>
@@ -620,12 +843,16 @@
   </div>
 
   <script>
+    const PROFESOR_PASSWORD = 'docente2026';
     let profesorKey = '';
     let currentCursoId = null;
     let currentTemaId = null;
     let cursos = [];
     let cursoActual = null;
     let currentView = 'dashboard';
+    let modoUsuario = 'alumno';
+    let currentYear = new Date().getFullYear();
+    let calendarEvents = [];
 
     const cursosList = document.getElementById('cursosList');
     const temasList = document.getElementById('temasList');
@@ -646,26 +873,13 @@
       document.querySelectorAll('.view').forEach(node => node.classList.add('hidden'));
       const target = document.getElementById(`view-${view}`);
       if (target) target.classList.remove('hidden');
-
       document.querySelectorAll('[data-view-btn]').forEach(btn => btn.classList.remove('active'));
       if (el) el.classList.add('active');
     }
 
     function toggleTheme() {
-      document.body.classList.toggle('dark-mode');
-      if (document.body.classList.contains('dark-mode')) {
-        document.documentElement.style.setProperty('--bg', '#111827');
-        document.documentElement.style.setProperty('--panel', '#18212f');
-        document.documentElement.style.setProperty('--line', '#2d394c');
-        document.documentElement.style.setProperty('--text', '#edf2f7');
-        document.documentElement.style.setProperty('--muted', '#9fb0c3');
-      } else {
-        document.documentElement.style.setProperty('--bg', '#f3f5f8');
-        document.documentElement.style.setProperty('--panel', '#ffffff');
-        document.documentElement.style.setProperty('--line', '#d9e1ea');
-        document.documentElement.style.setProperty('--text', '#16202a');
-        document.documentElement.style.setProperty('--muted', '#6c7a89');
-      }
+      const html = document.documentElement;
+      html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
     async function readProfesorKey() {
@@ -674,8 +888,60 @@
       } catch (_) {
         profesorKey = '';
       }
-      const perfilNode = document.getElementById('perfilProfesorKey');
-      if (perfilNode) perfilNode.textContent = profesorKey || 'No definida';
+      document.getElementById('perfilProfesorKey').textContent = profesorKey || 'No definida';
+    }
+
+    function loadModo() {
+      try {
+        const saved = localStorage.getItem('modo_usuario');
+        if (saved === 'profesor' || saved === 'alumno') modoUsuario = saved;
+      } catch (_) {
+        modoUsuario = 'alumno';
+      }
+      applyRoleUI();
+    }
+
+    function saveModo() {
+      try { localStorage.setItem('modo_usuario', modoUsuario); } catch (_) {}
+    }
+
+    function applyRoleUI() {
+      const isProfesor = modoUsuario === 'profesor';
+      document.querySelectorAll('[data-only-profesor]').forEach(el => {
+        el.style.display = isProfesor ? '' : 'none';
+      });
+      document.getElementById('dashboardModo').textContent = `Modo actual: ${isProfesor ? 'Profesor' : 'Alumno'}`;
+      document.getElementById('perfilRol').textContent = isProfesor ? 'Profesor' : 'Alumno';
+      document.getElementById('perfilPermisos').textContent = isProfesor ? 'Edición completa' : 'Solo lectura';
+    }
+
+    function setModoAlumno() {
+      modoUsuario = 'alumno';
+      saveModo();
+      applyRoleUI();
+      document.getElementById('loginEstado').innerHTML = 'Modo alumno activado. Ahora solo se muestran cursos y recursos publicados.';
+      if (currentView === 'archivos') {
+        setView('dashboard', document.querySelector('[data-view-btn="dashboard"]'));
+      }
+    }
+
+    function activarModoProfesor() {
+      const input = document.getElementById('profesorPassword');
+      const estado = document.getElementById('loginEstado');
+      const password = input.value.trim();
+      if (!password) {
+        estado.innerHTML = '<span class="error">Introduce la contraseña.</span>';
+        return;
+      }
+      if (password !== PROFESOR_PASSWORD) {
+        estado.innerHTML = '<span class="error">Contraseña incorrecta.</span>';
+        return;
+      }
+      modoUsuario = 'profesor';
+      saveModo();
+      applyRoleUI();
+      input.value = '';
+      estado.innerHTML = '<span class="ok">Modo profesor activado correctamente.</span>';
     }
 
     async function loadCursos() {
@@ -683,24 +949,37 @@
         document.getElementById('cursosEstado').textContent = 'Cargando...';
         const res = await fetch('/api/cursos');
         const data = await res.json();
-
         cursos = Array.isArray(data) ? data : (data.cursos || []);
 
         if (!Array.isArray(cursos) || cursos.length === 0) {
           document.getElementById('cursosEstado').textContent = 'Sin cursos';
           cursosList.innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
+          updateCursoSelect();
+          updateDashboardStats();
           return;
         }
 
-        if (!currentCursoId) currentCursoId = cursos[0].id;
-
+        if (!currentCursoId) currentCursoId = Number(cursos[0].id);
         renderCursos();
         document.getElementById('cursosEstado').textContent = `${cursos.length} curso(s)`;
+        updateCursoSelect();
         await loadCursoDetalle(currentCursoId);
+        updateDashboardStats();
       } catch (error) {
         document.getElementById('cursosEstado').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
         cursosList.innerHTML = '<div class="helper">No se pudieron cargar los cursos.</div>';
       }
+    }
+
+    function updateCursoSelect() {
+      const select = document.getElementById('eventoCurso');
+      if (!select) return;
+      if (!cursos.length) {
+        select.innerHTML = '<option value="">Sin cursos</option>';
+        return;
+      }
+      select.innerHTML = cursos.map(curso => `<option value="${Number(curso.id)}">${escapeHtml(curso.titulo || curso.nombre || 'Curso')}</option>`).join('');
+      if (currentCursoId) select.value = String(currentCursoId);
     }
 
     function renderCursos() {
@@ -708,7 +987,7 @@
         const titulo = escapeHtml(curso.titulo || curso.nombre || 'Curso sin título');
         const descripcion = escapeHtml(curso.descripcion || 'Sin descripción.');
         return `
-          <div class="course-item ${curso.id === currentCursoId ? 'active' : ''}">
+          <div class="course-item ${Number(curso.id) === Number(currentCursoId) ? 'active' : ''}">
             <button type="button" onclick="selectCurso(${Number(curso.id)})">
               <div class="item-head">
                 <strong>${titulo}</strong>
@@ -721,11 +1000,39 @@
       }).join('');
     }
 
+    async function crearCurso() {
+      const estado = document.getElementById('cursoEstado');
+      try {
+        if (modoUsuario !== 'profesor') throw new Error('Debes entrar en modo profesor para crear cursos.');
+        const titulo = document.getElementById('cursoTituloInput').value.trim();
+        const descripcion = document.getElementById('cursoDescripcionInput').value.trim();
+        if (!titulo) throw new Error('Escribe un título para el curso.');
+
+        const res = await fetch('/api/crear-curso', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profesor_key: profesorKey, titulo, descripcion })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'No se pudo crear el curso.');
+
+        estado.innerHTML = '<span class="ok">Curso creado correctamente.</span>';
+        document.getElementById('cursoTituloInput').value = '';
+        document.getElementById('cursoDescripcionInput').value = '';
+        await loadCursos();
+      } catch (error) {
+        estado.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+      }
+    }
+
     async function selectCurso(id) {
       currentCursoId = Number(id);
       currentTemaId = null;
       renderCursos();
+      updateCursoSelect();
       await loadCursoDetalle(currentCursoId);
+      renderYearCalendar();
+      renderEventsList();
     }
 
     async function loadCursoDetalle(id) {
@@ -735,14 +1042,12 @@
         document.getElementById('heroCursoTitulo').textContent = 'Cargando curso...';
         document.getElementById('heroCursoDescripcion').textContent = 'Esperando datos del curso.';
         document.getElementById('temaResumen').textContent = 'Cargando temas...';
-
         temasList.innerHTML = '<div class="helper">Cargando temas...</div>';
         materialsContainer.innerHTML = '<div class="helper">Selecciona un tema para ver sus materiales.</div>';
         viewerBox.innerHTML = '<div class="viewer-empty">Selecciona un material para abrirlo.</div>';
 
         const res = await fetch(`/api/curso?id=${Number(id)}`);
         const data = await res.json();
-
         cursoActual = data;
         const curso = data.curso || data;
         const temas = Array.isArray(data.temas) ? data.temas : [];
@@ -750,7 +1055,6 @@
 
         const cursoTitulo = curso.titulo || curso.nombre || 'Curso';
         const cursoDescripcion = curso.descripcion || 'Sin descripción.';
-
         document.getElementById('cursoTitulo').textContent = cursoTitulo;
         document.getElementById('cursoDescripcion').textContent = cursoDescripcion;
         document.getElementById('heroCursoTitulo').textContent = cursoTitulo;
@@ -760,6 +1064,7 @@
           document.getElementById('temaResumen').textContent = 'Sin temas';
           temasList.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
           materialsContainer.innerHTML = '<div class="helper">No hay materiales porque todavía no hay temas.</div>';
+          updateDashboardStats();
           return;
         }
 
@@ -770,6 +1075,7 @@
         document.getElementById('temaResumen').textContent = `${temas.length} tema(s)`;
         renderTemas(temas, materiales);
         renderMaterialesDeTema(currentTemaId, temas, materiales);
+        updateDashboardStats();
       } catch (error) {
         document.getElementById('cursoTitulo').textContent = 'Error al cargar';
         document.getElementById('cursoDescripcion').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
@@ -806,12 +1112,10 @@
     function renderMaterialesDeTema(temaId, temas, materiales) {
       const tema = temas.find(t => Number(t.id) === Number(temaId));
       const filtrados = materiales.filter(m => Number(m.tema_id) === Number(temaId));
-
       if (!tema) {
         materialsContainer.innerHTML = '<div class="helper">Tema no encontrado.</div>';
         return;
       }
-
       if (!filtrados.length) {
         materialsContainer.innerHTML = `
           <div class="helper">
@@ -822,7 +1126,6 @@
         `;
         return;
       }
-
       materialsContainer.innerHTML = filtrados.map(material => `
         <div class="material-item">
           <div class="item-head">
@@ -831,9 +1134,7 @@
           </div>
           <div class="muted">${escapeHtml(material.descripcion || 'Sin descripción.')}</div>
           <div class="actions">
-            <button class="btn btn-secondary" type="button" onclick="previewMaterial(${Number(material.id)}, '${escapeHtml(material.titulo || '').replace(/'/g, "\\'")}', '${escapeHtml((material.tipo || '').toLowerCase()).replace(/'/g, "\\'")}')">
-              Ver en navegador
-            </button>
+            <button class="btn btn-secondary" type="button" onclick="previewMaterial(${Number(material.id)}, '${escapeHtml(material.titulo || '').replace(/'/g, "\\'")}', '${escapeHtml((material.tipo || '').toLowerCase()).replace(/'/g, "\\'")}')">Ver en navegador</button>
           </div>
         </div>
       `).join('');
@@ -847,16 +1148,9 @@
         window.open(url, '_blank');
         viewerBox.innerHTML = `
           <div style="width:100%;">
-            <div style="margin-bottom:12px;">
-              <strong>${escapeHtml(titulo)}</strong>
-            </div>
-            <div class="status-box">
-              Este tipo de archivo no se puede mostrar dentro del visor.
-              Se ha abierto en una pestaña nueva.
-            </div>
-            <div class="actions" style="margin-top:14px;">
-              <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir archivo</a>
-            </div>
+            <div style="margin-bottom:12px;"><strong>${escapeHtml(titulo)}</strong></div>
+            <div class="status-box">Este tipo de archivo no se puede mostrar dentro del visor. Se ha abierto en una pestaña nueva.</div>
+            <div class="actions" style="margin-top:14px;"><a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir archivo</a></div>
           </div>
         `;
         return;
@@ -865,13 +1159,9 @@
       if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
         viewerBox.innerHTML = `
           <div style="width:100%;">
-            <div style="margin-bottom:12px;">
-              <strong>${escapeHtml(titulo)}</strong>
-            </div>
+            <div style="margin-bottom:12px;"><strong>${escapeHtml(titulo)}</strong></div>
             <img src="${url}" alt="${escapeHtml(titulo)}" class="viewer-image" />
-            <div class="actions" style="margin-top:14px;">
-              <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir imagen</a>
-            </div>
+            <div class="actions" style="margin-top:14px;"><a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir imagen</a></div>
           </div>
         `;
         return;
@@ -880,19 +1170,9 @@
       if (fileType === 'pdf' || fileType === 'html') {
         viewerBox.innerHTML = `
           <div style="width:100%;">
-            <div style="margin-bottom:12px;">
-              <strong>${escapeHtml(titulo)}</strong>
-            </div>
-            <iframe
-              src="${url}"
-              width="100%"
-              height="700"
-              style="border:1px solid #dbe5ef; border-radius:14px; background:white;"
-              title="${escapeHtml(titulo)}"
-            ></iframe>
-            <div class="actions" style="margin-top:14px;">
-              <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir en pestaña nueva</a>
-            </div>
+            <div style="margin-bottom:12px;"><strong>${escapeHtml(titulo)}</strong></div>
+            <iframe src="${url}" width="100%" height="700" style="border:1px solid var(--border); border-radius:14px; background:white;" title="${escapeHtml(titulo)}"></iframe>
+            <div class="actions" style="margin-top:14px;"><a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir en pestaña nueva</a></div>
           </div>
         `;
         return;
@@ -901,38 +1181,26 @@
       window.open(url, '_blank');
       viewerBox.innerHTML = `
         <div style="width:100%;">
-          <div style="margin-bottom:12px;">
-            <strong>${escapeHtml(titulo)}</strong>
-          </div>
-          <div class="status-box">
-            Este archivo se ha abierto en una pestaña nueva porque no tiene visor integrado.
-          </div>
-          <div class="actions" style="margin-top:14px;">
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir archivo</a>
-          </div>
+          <div style="margin-bottom:12px;"><strong>${escapeHtml(titulo)}</strong></div>
+          <div class="status-box">Este archivo se ha abierto en una pestaña nueva porque no tiene visor integrado.</div>
+          <div class="actions" style="margin-top:14px;"><a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir archivo</a></div>
         </div>
       `;
     }
 
     async function crearTema() {
       try {
+        if (modoUsuario !== 'profesor') throw new Error('Debes entrar en modo profesor para crear temas.');
         const titulo = document.getElementById('temaTitulo').value.trim();
         const descripcion = document.getElementById('temaDescripcion').value.trim();
-
         if (!currentCursoId) throw new Error('Selecciona un curso.');
         if (!titulo) throw new Error('Escribe un título para el tema.');
 
         const res = await fetch('/api/crear-tema', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profesor_key: profesorKey,
-            curso_id: currentCursoId,
-            titulo,
-            descripcion
-          })
+          body: JSON.stringify({ profesor_key: profesorKey, curso_id: currentCursoId, titulo, descripcion })
         });
-
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'No se pudo crear el tema.');
 
@@ -948,8 +1216,8 @@
     async function subirMaterial() {
       const btn = document.getElementById('btnSubirMaterial');
       const estado = document.getElementById('uploadEstado');
-
       try {
+        if (modoUsuario !== 'profesor') throw new Error('Debes entrar en modo profesor para subir materiales.');
         const titulo = document.getElementById('uploadTitulo').value.trim();
         const descripcion = document.getElementById('uploadDescripcion').value.trim();
         const tipo = document.getElementById('uploadTipo').value;
@@ -973,11 +1241,7 @@
         fd.append('tipo', tipo);
         fd.append('file', file);
 
-        const res = await fetch('/api/subir-material', {
-          method: 'POST',
-          body: fd
-        });
-
+        const res = await fetch('/api/subir-material', { method: 'POST', body: fd });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'No se pudo subir el archivo.');
 
@@ -994,11 +1258,179 @@
       }
     }
 
+    function getMonthNames() {
+      return ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    }
+
+    function loadCalendarEvents() {
+      try {
+        const raw = localStorage.getItem('calendar_events');
+        calendarEvents = raw ? JSON.parse(raw) : [];
+      } catch (_) {
+        calendarEvents = [];
+      }
+    }
+
+    function saveCalendarEvents() {
+      try { localStorage.setItem('calendar_events', JSON.stringify(calendarEvents)); } catch (_) {}
+    }
+
+    function cambiarAnio(step) {
+      currentYear += step;
+      renderYearCalendar();
+      renderEventsList();
+    }
+
+    function volverAnioActual() {
+      currentYear = new Date().getFullYear();
+      renderYearCalendar();
+      renderEventsList();
+    }
+
+    function renderYearCalendar() {
+      document.getElementById('calendarYearTitle').textContent = `Calendario ${currentYear}`;
+      const grid = document.getElementById('yearCalendar');
+      const monthNames = getMonthNames();
+      const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+      grid.innerHTML = monthNames.map((monthName, monthIndex) => {
+        const firstDay = new Date(currentYear, monthIndex, 1);
+        const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
+        const startOffset = (firstDay.getDay() + 6) % 7;
+        const cells = [];
+
+        for (let i = 0; i < startOffset; i++) {
+          cells.push('<div class="day-cell empty"></div>');
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const iso = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const events = calendarEvents.filter(ev => ev.fecha === iso && (!currentCursoId || Number(ev.curso_id) === Number(currentCursoId)));
+          const hasEvent = events.length > 0;
+          const mini = hasEvent ? `${escapeHtml(events[0].hora_inicio || '')}${events[0].titulo ? ' · ' + escapeHtml(events[0].titulo.slice(0, 12)) : ''}` : '';
+          cells.push(`
+            <button type="button" class="day-cell ${hasEvent ? 'has-event' : ''}" onclick="selectCalendarDay('${iso}')">
+              <span class="day-number">${day}</span>
+              <div class="day-mini">${mini}</div>
+            </button>
+          `);
+        }
+
+        return `
+          <div class="month-card">
+            <h4>${monthName}</h4>
+            <div class="month-weekdays">${weekdays.map(day => `<div class="weekday">${day}</div>`).join('')}</div>
+            <div class="month-days">${cells.join('')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectCalendarDay(dateStr) {
+      const input = document.getElementById('eventoFecha');
+      if (input) input.value = dateStr;
+      setView('calendario', document.querySelector('[data-view-btn="calendario"]'));
+    }
+
+    function guardarEventoCalendario() {
+      const estado = document.getElementById('eventoEstado');
+      try {
+        if (modoUsuario !== 'profesor') throw new Error('Debes entrar en modo profesor para añadir clases.');
+        const cursoId = document.getElementById('eventoCurso').value;
+        const fecha = document.getElementById('eventoFecha').value;
+        const horaInicio = document.getElementById('eventoHoraInicio').value;
+        const horaFin = document.getElementById('eventoHoraFin').value;
+        const titulo = document.getElementById('eventoTitulo').value.trim();
+        const descripcion = document.getElementById('eventoDescripcion').value.trim();
+
+        if (!cursoId) throw new Error('Selecciona un curso.');
+        if (!fecha) throw new Error('Selecciona una fecha.');
+        if (!horaInicio || !horaFin) throw new Error('Indica el horario completo.');
+        if (horaFin <= horaInicio) throw new Error('La hora final debe ser posterior a la de inicio.');
+        if (!titulo) throw new Error('Escribe un título para la clase.');
+
+        const existingIndex = calendarEvents.findIndex(ev => ev.fecha === fecha && ev.hora_inicio === horaInicio && Number(ev.curso_id) === Number(cursoId));
+        const payload = {
+          id: existingIndex >= 0 ? calendarEvents[existingIndex].id : Date.now(),
+          curso_id: Number(cursoId),
+          fecha,
+          hora_inicio: horaInicio,
+          hora_fin: horaFin,
+          titulo,
+          descripcion
+        };
+
+        if (existingIndex >= 0) calendarEvents[existingIndex] = payload;
+        else calendarEvents.push(payload);
+
+        calendarEvents.sort((a, b) => `${a.fecha} ${a.hora_inicio}`.localeCompare(`${b.fecha} ${b.hora_inicio}`));
+        saveCalendarEvents();
+        renderYearCalendar();
+        renderEventsList();
+        estado.innerHTML = '<span class="ok">Clase guardada correctamente.</span>';
+        document.getElementById('eventoTitulo').value = '';
+        document.getElementById('eventoDescripcion').value = '';
+      } catch (error) {
+        estado.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+      }
+    }
+
+    function eliminarEvento(id) {
+      if (modoUsuario !== 'profesor') return;
+      calendarEvents = calendarEvents.filter(ev => Number(ev.id) !== Number(id));
+      saveCalendarEvents();
+      renderYearCalendar();
+      renderEventsList();
+    }
+
+    function renderEventsList() {
+      const list = document.getElementById('eventosList');
+      const summary = document.getElementById('eventosResumen');
+      const filtered = calendarEvents.filter(ev => new Date(ev.fecha).getFullYear() === currentYear && (!currentCursoId || Number(ev.curso_id) === Number(currentCursoId)));
+      if (!filtered.length) {
+        summary.textContent = 'Sin eventos';
+        list.innerHTML = '<div class="helper">No hay clases programadas para este año o para el curso seleccionado.</div>';
+        return;
+      }
+      summary.textContent = `${filtered.length} clase(s)`;
+      list.innerHTML = filtered.map(ev => {
+        const curso = cursos.find(c => Number(c.id) === Number(ev.curso_id));
+        return `
+          <div class="event-item">
+            <div class="item-head">
+              <strong>${escapeHtml(ev.titulo)}</strong>
+              <span class="type-badge">${escapeHtml(ev.hora_inicio)} - ${escapeHtml(ev.hora_fin)}</span>
+            </div>
+            <div class="muted">${escapeHtml(ev.fecha)} · ${escapeHtml(curso?.titulo || curso?.nombre || 'Curso')}</div>
+            <div class="muted" style="margin-top:6px;">${escapeHtml(ev.descripcion || 'Sin descripción.')}</div>
+            ${modoUsuario === 'profesor' ? `<div class="actions"><button class="btn btn-secondary" type="button" onclick="eliminarEvento(${Number(ev.id)})">Eliminar</button></div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateDashboardStats() {
+      const temas = Array.isArray(cursoActual?.temas) ? cursoActual.temas.length : 0;
+      const materiales = Array.isArray(cursoActual?.materiales) ? cursoActual.materiales.length : 0;
+      const eventos = calendarEvents.filter(ev => !currentCursoId || Number(ev.curso_id) === Number(currentCursoId)).length;
+      document.getElementById('dashboardResumen').innerHTML = `
+        Cursos cargados: <strong>${cursos.length}</strong><br>
+        Temas del curso actual: <strong>${temas}</strong><br>
+        Materiales del curso actual: <strong>${materiales}</strong><br>
+        Clases programadas para este curso: <strong>${eventos}</strong>
+      `;
+    }
+
     (async function init() {
       await readProfesorKey();
+      loadModo();
+      loadCalendarEvents();
       setView('dashboard', document.querySelector('[data-view-btn="dashboard"]'));
       await loadCursos();
+      renderYearCalendar();
+      renderEventsList();
     })();
   </script>
 </body>
 </html>
+EOF
