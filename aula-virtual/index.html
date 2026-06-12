@@ -8,7 +8,6 @@
     :root{
       --bg:#f3f5f8;
       --panel:#ffffff;
-      --panel-soft:#f8fafc;
       --line:#d9e1ea;
       --text:#16202a;
       --muted:#6c7a89;
@@ -22,8 +21,6 @@
       --ok:#1f7a1f;
       --error:#b42318;
       --shadow:0 8px 30px rgba(15,23,42,.08);
-      --radius:18px;
-      --radius-sm:12px;
     }
 
     *{box-sizing:border-box}
@@ -37,8 +34,7 @@
     .app{
       min-height:100vh;
       display:grid;
-      grid-template-columns: 290px 1fr;
-      gap:0;
+      grid-template-columns:290px 1fr;
     }
 
     .sidebar{
@@ -90,9 +86,7 @@
       color:var(--sidebar-muted);
     }
 
-    .nav-section{
-      margin-top:18px;
-    }
+    .nav-section{ margin-top:18px; }
 
     .nav-label{
       color:var(--sidebar-muted);
@@ -108,14 +102,12 @@
       gap:6px;
     }
 
-    .nav button,
-    .nav a{
+    .nav button{
       width:100%;
       text-align:left;
       border:none;
       background:none;
       color:var(--sidebar-text);
-      text-decoration:none;
       padding:12px 14px;
       border-radius:14px;
       font:inherit;
@@ -124,8 +116,7 @@
       opacity:.92;
     }
 
-    .nav button:hover,
-    .nav a:hover{
+    .nav button:hover{
       background:rgba(255,255,255,.08);
       opacity:1;
     }
@@ -177,12 +168,18 @@
 
     .dashboard{
       display:grid;
-      grid-template-columns: minmax(320px, 430px) minmax(360px, 1fr) minmax(320px, 420px);
+      grid-template-columns:minmax(320px,430px) minmax(360px,1fr) minmax(320px,420px);
       gap:20px;
       align-items:start;
     }
 
-    .panel{
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+
+    .panel, .course-feature{
       background:var(--panel);
       border:1px solid rgba(15,23,42,.06);
       border-radius:20px;
@@ -190,35 +187,14 @@
       overflow:hidden;
     }
 
-    .panel-body{
-      padding:18px;
-    }
-
-    .card-title{
-      margin:0 0 10px 0;
-      font-size:20px;
-    }
-
-    .muted{
-      color:var(--muted);
-    }
-
-    .course-feature{
-      border-radius:20px;
-      overflow:hidden;
-      background:var(--panel);
-      border:1px solid rgba(15,23,42,.06);
-      box-shadow:var(--shadow);
-    }
+    .panel-body{ padding:18px; }
 
     .course-cover{
       height:172px;
       background:linear-gradient(120deg, var(--primary-2), #798aa3 48%, var(--accent));
     }
 
-    .course-content{
-      padding:16px;
-    }
+    .course-content{ padding:16px; }
 
     .pill{
       display:inline-flex;
@@ -248,17 +224,13 @@
       border-radius:999px;
     }
 
-    .course-list,
-    .topic-list,
-    .material-list{
+    .course-list,.topic-list,.material-list{
       display:flex;
       flex-direction:column;
       gap:12px;
     }
 
-    .course-item,
-    .topic-item,
-    .material-item{
+    .course-item,.topic-item,.material-item{
       border:1px solid rgba(15,23,42,.08);
       border-radius:16px;
       background:var(--panel);
@@ -266,14 +238,12 @@
       transition:.18s ease;
     }
 
-    .course-item.active,
-    .topic-item.active{
+    .course-item.active,.topic-item.active{
       border-color:#bfd7f4;
       background:#f5faff;
     }
 
-    .course-item button,
-    .topic-item button{
+    .course-item button,.topic-item button{
       width:100%;
       text-align:left;
       background:none;
@@ -330,15 +300,7 @@
       border:1px solid #dbe5ef;
     }
 
-    .btn-secondary:hover{
-      background:#e7edf5;
-    }
-
-    .btn-soft{
-      background:#f8fafc;
-      color:#405163;
-      border:1px solid #e3e9f1;
-    }
+    .btn-secondary:hover{ background:#e7edf5; }
 
     .actions{
       display:flex;
@@ -363,6 +325,16 @@
       text-align:center;
       color:var(--muted);
       padding:40px;
+    }
+
+    .viewer-image{
+      width:100%;
+      max-height:720px;
+      object-fit:contain;
+      border-radius:14px;
+      border:1px solid #dbe5ef;
+      background:#fff;
+      display:block;
     }
 
     .form-grid{
@@ -423,12 +395,6 @@
       color:var(--muted);
     }
 
-    .stack{
-      display:flex;
-      flex-direction:column;
-      gap:20px;
-    }
-
     .helper{
       background:#f8fafc;
       border:1px solid #e5ebf3;
@@ -438,29 +404,18 @@
       font-size:14px;
     }
 
+    .hidden{ display:none !important; }
+
     @media (max-width: 1240px){
-      .dashboard{
-        grid-template-columns:1fr;
-      }
-      .viewer-box{
-        min-height:460px;
-      }
+      .dashboard{ grid-template-columns:1fr; }
+      .viewer-box{ min-height:460px; }
     }
 
     @media (max-width: 900px){
-      .app{
-        grid-template-columns:1fr;
-      }
-      .sidebar{
-        position:relative;
-        height:auto;
-      }
-      .hero h2{
-        font-size:32px;
-      }
-      .main{
-        padding:14px;
-      }
+      .app{ grid-template-columns:1fr; }
+      .sidebar{ position:relative; height:auto; }
+      .hero h2{ font-size:32px; }
+      .main{ padding:14px; }
     }
   </style>
 </head>
@@ -478,19 +433,19 @@
       <div class="nav-section">
         <div class="nav-label">Principal</div>
         <div class="nav">
-          <button type="button">Dashboard</button>
-          <button type="button" class="active">Mis cursos</button>
-          <button type="button">Curso ejemplo</button>
-          <button type="button">Calendario</button>
-          <button type="button">Archivos</button>
+          <button type="button" class="active" data-view-btn="dashboard" onclick="setView('dashboard', this)">Dashboard</button>
+          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Mis cursos</button>
+          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Curso ejemplo</button>
+          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Calendario</button>
+          <button type="button" data-view-btn="dashboard" onclick="setView('dashboard', this)">Archivos</button>
         </div>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Configuración</div>
         <div class="nav">
-          <button type="button">Perfil</button>
-          <button type="button">Cambiar modo</button>
+          <button type="button" data-view-btn="perfil" onclick="setView('perfil', this)">Perfil</button>
+          <button type="button" onclick="toggleTheme()">Cambiar modo</button>
         </div>
       </div>
 
@@ -501,144 +456,161 @@
 
     <main class="main">
       <div class="shell">
-        <section class="hero">
-          <div>
-            <h2>Mis cursos</h2>
-            <p>Aquí podrás ver todos los cursos cargados desde la API.</p>
-          </div>
+        <section id="view-dashboard" class="view">
+          <section class="hero">
+            <div>
+              <h2>Mis cursos</h2>
+              <p>Aquí podrás ver todos los cursos cargados desde la API.</p>
+            </div>
+          </section>
+
+          <section class="dashboard">
+            <div class="stack">
+              <div class="course-feature">
+                <div class="course-cover"></div>
+                <div class="course-content">
+                  <div class="pill">Activo</div>
+                  <h3 id="heroCursoTitulo" style="margin:0 0 8px 0; font-size:32px;">Cargando curso...</h3>
+                  <p id="heroCursoDescripcion" class="muted">Esperando datos del curso.</p>
+                  <div class="progress"><span></span></div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Cursos</h3>
+                    <span id="cursosEstado" class="subtle">Cargando...</span>
+                  </div>
+                  <div id="cursosList" class="course-list"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3 id="cursoTitulo">Selecciona un curso</h3>
+                    <span class="subtle">Contenido académico</span>
+                  </div>
+                  <p id="cursoDescripcion" class="muted">Aquí verás el detalle del curso.</p>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Temas del curso</h3>
+                    <span class="subtle" id="temaResumen">Elige un tema</span>
+                  </div>
+                  <div id="temasList" class="topic-list"></div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Materiales</h3>
+                    <span class="subtle">Vista del tema actual</span>
+                  </div>
+                  <div id="materialsContainer" class="material-list">
+                    <div class="helper">Selecciona un tema para ver sus materiales.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Visor</h3>
+                    <span class="subtle">Previsualización</span>
+                  </div>
+                  <div id="viewerBox" class="viewer-box">
+                    <div class="viewer-empty">Selecciona un material para abrirlo.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Crear tema</h3>
+                    <span class="subtle">Añade contenido nuevo</span>
+                  </div>
+                  <div class="form-grid">
+                    <div>
+                      <label for="temaTitulo">Título del tema</label>
+                      <input id="temaTitulo" type="text" placeholder="Ej. Tema 1" />
+                    </div>
+                    <div>
+                      <label for="temaDescripcion">Descripción</label>
+                      <textarea id="temaDescripcion" placeholder="Descripción del tema"></textarea>
+                    </div>
+                    <div class="actions">
+                      <button class="btn btn-primary" onclick="crearTema()">Crear tema</button>
+                    </div>
+                    <div id="temaEstado" class="subtle"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Subir material</h3>
+                    <span class="subtle">Bloquea dobles envíos</span>
+                  </div>
+                  <div class="form-grid">
+                    <div>
+                      <label for="uploadTitulo">Título</label>
+                      <input id="uploadTitulo" type="text" placeholder="Título del material" />
+                    </div>
+                    <div>
+                      <label for="uploadDescripcion">Descripción</label>
+                      <textarea id="uploadDescripcion" placeholder="Descripción opcional"></textarea>
+                    </div>
+                    <div>
+                      <label for="uploadTipo">Tipo</label>
+                      <select id="uploadTipo">
+                        <option value="pdf">PDF</option>
+                        <option value="pptx">PPTX</option>
+                        <option value="docx">DOCX</option>
+                        <option value="html">HTML</option>
+                        <option value="jpg">JPG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="uploadFile">Archivo</label>
+                      <input id="uploadFile" type="file" />
+                    </div>
+                    <div class="actions">
+                      <button class="btn btn-primary" id="btnSubirMaterial" onclick="subirMaterial()">Subir ahora</button>
+                    </div>
+                    <div id="uploadEstado" class="subtle"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
 
-        <section class="dashboard">
-          <div class="stack">
-            <div class="course-feature">
-              <div class="course-cover"></div>
-              <div class="course-content">
-                <div class="pill">Activo</div>
-                <h3 id="heroCursoTitulo" style="margin:0 0 8px 0; font-size:32px;">Cargando curso...</h3>
-                <p id="heroCursoDescripcion" class="muted">Esperando datos del curso.</p>
-                <div class="progress"><span></span></div>
-              </div>
+        <section id="view-perfil" class="view hidden">
+          <section class="hero">
+            <div>
+              <h2>Perfil</h2>
+              <p>Zona de configuración básica del profesor.</p>
             </div>
-
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Cursos</h3>
-                  <span id="cursosEstado" class="subtle">Cargando...</span>
-                </div>
-                <div id="cursosList" class="course-list"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="stack">
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3 id="cursoTitulo">Selecciona un curso</h3>
-                  <span class="subtle">Contenido académico</span>
-                </div>
-                <p id="cursoDescripcion" class="muted">Aquí verás el detalle del curso.</p>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Temas del curso</h3>
-                  <span class="subtle" id="temaResumen">Elige un tema</span>
-                </div>
-                <div id="temasList" class="topic-list"></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Materiales</h3>
-                  <span class="subtle">Vista del tema actual</span>
-                </div>
-                <div id="materialsContainer" class="material-list">
-                  <div class="helper">Selecciona un tema para ver sus materiales.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="stack">
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Visor</h3>
-                  <span class="subtle">Previsualización</span>
-                </div>
-                <div id="viewerBox" class="viewer-box">
-                  <div class="viewer-empty">
-                    Selecciona un material para abrirlo.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Crear tema</h3>
-                  <span class="subtle">Añade contenido nuevo</span>
-                </div>
-                <div class="form-grid">
-                  <div>
-                    <label for="temaTitulo">Título del tema</label>
-                    <input id="temaTitulo" type="text" placeholder="Ej. Tema 1" />
-                  </div>
-                  <div>
-                    <label for="temaDescripcion">Descripción</label>
-                    <textarea id="temaDescripcion" placeholder="Descripción del tema"></textarea>
-                  </div>
-                  <div class="actions">
-                    <button class="btn btn-primary" onclick="crearTema()">Crear tema</button>
-                  </div>
-                  <div id="temaEstado" class="subtle"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-body">
-                <div class="section-title">
-                  <h3>Subir material</h3>
-                  <span class="subtle">Bloquea dobles envíos</span>
-                </div>
-                <div class="form-grid">
-                  <div>
-                    <label for="uploadTitulo">Título</label>
-                    <input id="uploadTitulo" type="text" placeholder="Título del material" />
-                  </div>
-                  <div>
-                    <label for="uploadDescripcion">Descripción</label>
-                    <textarea id="uploadDescripcion" placeholder="Descripción opcional"></textarea>
-                  </div>
-                  <div>
-                    <label for="uploadTipo">Tipo</label>
-                    <select id="uploadTipo">
-                      <option value="pdf">PDF</option>
-                      <option value="pptx">PPTX</option>
-                      <option value="docx">DOCX</option>
-                      <option value="html">HTML</option>
-                      <option value="jpg">JPG</option>
-                      <option value="jpeg">JPEG</option>
-                      <option value="png">PNG</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label for="uploadFile">Archivo</label>
-                    <input id="uploadFile" type="file" />
-                  </div>
-                  <div class="actions">
-                    <button class="btn btn-primary" id="btnSubirMaterial" onclick="subirMaterial()">Subir ahora</button>
-                  </div>
-                  <div id="uploadEstado" class="subtle"></div>
-                </div>
+          </section>
+          <div class="panel">
+            <div class="panel-body">
+              <div class="helper">
+                Esta sección es funcional como vista de navegación.  
+                Clave de profesor actual: <strong id="perfilProfesorKey">No definida</strong>
               </div>
             </div>
           </div>
@@ -653,6 +625,7 @@
     let currentTemaId = null;
     let cursos = [];
     let cursoActual = null;
+    let currentView = 'dashboard';
 
     const cursosList = document.getElementById('cursosList');
     const temasList = document.getElementById('temasList');
@@ -668,12 +641,41 @@
         .replace(/'/g, '&#39;');
     }
 
+    function setView(view, el) {
+      currentView = view;
+      document.querySelectorAll('.view').forEach(node => node.classList.add('hidden'));
+      const target = document.getElementById(`view-${view}`);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('[data-view-btn]').forEach(btn => btn.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      if (document.body.classList.contains('dark-mode')) {
+        document.documentElement.style.setProperty('--bg', '#111827');
+        document.documentElement.style.setProperty('--panel', '#18212f');
+        document.documentElement.style.setProperty('--line', '#2d394c');
+        document.documentElement.style.setProperty('--text', '#edf2f7');
+        document.documentElement.style.setProperty('--muted', '#9fb0c3');
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f3f5f8');
+        document.documentElement.style.setProperty('--panel', '#ffffff');
+        document.documentElement.style.setProperty('--line', '#d9e1ea');
+        document.documentElement.style.setProperty('--text', '#16202a');
+        document.documentElement.style.setProperty('--muted', '#6c7a89');
+      }
+    }
+
     async function readProfesorKey() {
       try {
         profesorKey = localStorage.getItem('profesor_key') || '';
       } catch (_) {
         profesorKey = '';
       }
+      const perfilNode = document.getElementById('perfilProfesorKey');
+      if (perfilNode) perfilNode.textContent = profesorKey || 'No definida';
     }
 
     async function loadCursos() {
@@ -843,7 +845,6 @@
 
       if (fileType === 'pptx' || fileType === 'docx') {
         window.open(url, '_blank');
-
         viewerBox.innerHTML = `
           <div style="width:100%;">
             <div style="margin-bottom:12px;">
@@ -861,20 +862,53 @@
         return;
       }
 
+      if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
+        viewerBox.innerHTML = `
+          <div style="width:100%;">
+            <div style="margin-bottom:12px;">
+              <strong>${escapeHtml(titulo)}</strong>
+            </div>
+            <img src="${url}" alt="${escapeHtml(titulo)}" class="viewer-image" />
+            <div class="actions" style="margin-top:14px;">
+              <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir imagen</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (fileType === 'pdf' || fileType === 'html') {
+        viewerBox.innerHTML = `
+          <div style="width:100%;">
+            <div style="margin-bottom:12px;">
+              <strong>${escapeHtml(titulo)}</strong>
+            </div>
+            <iframe
+              src="${url}"
+              width="100%"
+              height="700"
+              style="border:1px solid #dbe5ef; border-radius:14px; background:white;"
+              title="${escapeHtml(titulo)}"
+            ></iframe>
+            <div class="actions" style="margin-top:14px;">
+              <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir en pestaña nueva</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      window.open(url, '_blank');
       viewerBox.innerHTML = `
         <div style="width:100%;">
           <div style="margin-bottom:12px;">
             <strong>${escapeHtml(titulo)}</strong>
           </div>
-          <iframe
-            src="${url}"
-            width="100%"
-            height="700"
-            style="border:1px solid #dbe5ef; border-radius:14px; background:white;"
-            title="${escapeHtml(titulo)}"
-          ></iframe>
+          <div class="status-box">
+            Este archivo se ha abierto en una pestaña nueva porque no tiene visor integrado.
+          </div>
           <div class="actions" style="margin-top:14px;">
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir en pestaña nueva</a>
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Abrir archivo</a>
           </div>
         </div>
       `;
@@ -962,6 +996,7 @@
 
     (async function init() {
       await readProfesorKey();
+      setView('dashboard', document.querySelector('[data-view-btn="dashboard"]'));
       await loadCursos();
     })();
   </script>
