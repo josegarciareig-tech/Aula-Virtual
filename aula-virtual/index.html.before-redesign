@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aula Virtual</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --line:#d9e1ea;
+      --text:#16202a;
+      --muted:#66788a;
+      --primary:#0f6cbd;
+      --primary-dark:#0a4f8a;
+      --ok:#1f7a1f;
+      --error:#b42318;
+      --shadow:0 8px 24px rgba(15, 23, 42, .08);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1400px;
+      margin:0 auto;
+      padding:24px;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:24px;
+    }
+    .title{
+      font-size:28px;
+      font-weight:700;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:280px 1fr 420px;
+      gap:20px;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    h2,h3,h4,h5{
+      margin:0 0 12px 0;
+    }
+    p{
+      margin:0 0 12px 0;
+      line-height:1.5;
+    }
+    .muted{
+      color:var(--muted);
+    }
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .curso-item,
+    .tema-item,
+    .material{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+    .curso-item.active,
+    .tema-item.active{
+      border-color:var(--primary);
+      background:#eef6ff;
+    }
+    .curso-item button,
+    .tema-item button{
+      width:100%;
+      text-align:left;
+      background:none;
+      border:none;
+      font:inherit;
+      cursor:pointer;
+      color:inherit;
+      padding:0;
+    }
+    .material{
+      margin-bottom:12px;
+    }
+    .material-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .material-type{
+      background:#eef6ff;
+      color:var(--primary);
+      border:1px solid #cfe4fb;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .btn{
+      display:inline-block;
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      text-decoration:none;
+    }
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+    .btn-primary:hover{
+      background:var(--primary-dark);
+    }
+    .btn-secondary{
+      background:#eef2f7;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn-danger{
+      background:#fdecec;
+      color:var(--error);
+      border:1px solid #f3caca;
+    }
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    label{
+      display:block;
+      font-size:14px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    input, textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px 12px;
+      font:inherit;
+      background:#fff;
+    }
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+    .viewer{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .viewer-box{
+      min-height:720px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#f9fbfd;
+      padding:12px;
+    }
+    .status-box{
+      padding:12px;
+      border-radius:10px;
+      background:#fff8e6;
+      border:1px solid #f1d38a;
+      color:#7a5600;
+    }
+    .ok{color:var(--ok); font-weight:700;}
+    .error{color:var(--error); font-weight:700;}
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .row > *{
+      flex:1 1 180px;
+    }
+    .section-sep{
+      margin:18px 0;
+      border:none;
+      border-top:1px solid var(--line);
+    }
+    @media (max-width: 1180px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+      .viewer-box{
+        min-height:500px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="title">Aula Virtual</div>
+        <p class="muted">Gestión de cursos, temas y materiales.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <aside class="card">
+        <h3>Cursos</h3>
+        <div id="cursosEstado" class="muted" style="margin-bottom:10px;">Cargando cursos...</div>
+        <div id="cursosList" class="list"></div>
+      </aside>
+
+      <main class="stack">
+        <section class="card">
+          <h2 id="cursoTitulo">Selecciona un curso</h2>
+          <p id="cursoDescripcion" class="muted">Aquí verás el detalle del curso y sus temas.</p>
+        </section>
+
+        <section class="card">
+          <h3>Temas del curso</h3>
+          <div id="temasList" class="list"></div>
+        </section>
+
+        <section class="card">
+          <h3>Materiales del tema</h3>
+          <div id="materialsContainer">
+            <p class="muted">Selecciona un tema para ver sus materiales.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Crear tema</h3>
+          <div class="stack">
+            <div>
+              <label for="temaTitulo">Título del tema</label>
+              <input id="temaTitulo" type="text" placeholder="Ej. Tema 1" />
+            </div>
+            <div>
+              <label for="temaDescripcion">Descripción</label>
+              <textarea id="temaDescripcion" placeholder="Descripción del tema"></textarea>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="crearTema()">Crear tema</button>
+            </div>
+            <div id="temaEstado" class="muted"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Subir material</h3>
+          <div class="stack">
+            <div>
+              <label for="uploadTitulo">Título</label>
+              <input id="uploadTitulo" type="text" placeholder="Título del material" />
+            </div>
+            <div>
+              <label for="uploadDescripcion">Descripción</label>
+              <textarea id="uploadDescripcion" placeholder="Descripción opcional"></textarea>
+            </div>
+            <div class="row">
+              <div>
+                <label for="uploadTipo">Tipo</label>
+                <select id="uploadTipo">
+                  <option value="pdf">PDF</option>
+                  <option value="pptx">PPTX</option>
+                  <option value="docx">DOCX</option>
+                  <option value="html">HTML</option>
+                  <option value="jpg">JPG</option>
+                  <option value="png">PNG</option>
+                </select>
+              </div>
+              <div>
+                <label for="uploadFile">Archivo</label>
+                <input id="uploadFile" type="file" />
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-primary" id="btnSubirMaterial" onclick="subirMaterial()">Subir ahora</button>
+            </div>
+            <div id="uploadEstado" class="muted"></div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="card viewer">
+        <h3>Visor</h3>
+        <div class="viewer-box" id="viewerBox">
+          <p class="muted">Selecciona un material para abrirlo.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    let profesorKey = localStorage.getItem('profesor_key') || '';
+    let currentCursoId = null;
+    let currentTemaId = null;
+    let cursos = [];
+    let cursoActual = null;
+
+    const cursosList = document.getElementById('cursosList');
+    const temasList = document.getElementById('temasList');
+    const materialsContainer = document.getElementById('materialsContainer');
+    const viewerBox = document.getElementById('viewerBox');
+
+    async function loadCursos() {
+      try {
+        document.getElementById('cursosEstado').textContent = 'Cargando cursos...';
+        const res = await fetch('/api/cursos');
+        const data = await res.json();
+
+        cursos = data.cursos || data || [];
+
+        if (!Array.isArray(cursos) || cursos.length === 0) {
+          document.getElementById('cursosEstado').textContent = 'No hay cursos.';
+          cursosList.innerHTML = '';
+          return;
+        }
+
+        document.getElementById('cursosEstado').textContent = '';
+        renderCursos();
+
+        if (!currentCursoId) {
+          currentCursoId = cursos[0].id;
+        }
+
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('cursosEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    function renderCursos() {
+      cursosList.innerHTML = cursos.map(curso => `
+        <div class="curso-item ${curso.id === currentCursoId ? 'active' : ''}">
+          <button onclick="selectCurso(${curso.id})">
+            <strong>${curso.titulo || curso.nombre || 'Curso sin título'}</strong><br>
+            <span class="muted">${curso.descripcion || ''}</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function selectCurso(id) {
+      currentCursoId = id;
+      currentTemaId = null;
+      renderCursos();
+      loadCursoDetalle(id);
+    }
+
+    async function loadCursoDetalle(id) {
+      try {
+        document.getElementById('cursoTitulo').textContent = 'Cargando curso...';
+        document.getElementById('cursoDescripcion').textContent = '';
+        temasList.innerHTML = '<p class="muted">Cargando temas...</p>';
+        materialsContainer.innerHTML = '<p class="muted">Selecciona un tema para ver sus materiales.</p>';
+        viewerBox.innerHTML = '<p class="muted">Selecciona un material para abrirlo.</p>';
+
+        const res = await fetch(`/api/curso?id=${id}`);
+        const data = await res.json();
+
+        cursoActual = data;
+        const curso = data.curso || data;
+        const temas = data.temas || [];
+        const materiales = data.materiales || [];
+
+        document.getElementById('cursoTitulo').textContent = curso.titulo || curso.nombre || 'Curso';
+        document.getElementById('cursoDescripcion').textContent = curso.descripcion || 'Sin descripción.';
+
+        if (!temas.length) {
+          temasList.innerHTML = '<p class="muted">Este curso no tiene temas todavía.</p>';
+          return;
+        }
+
+        if (!currentTemaId || !temas.find(t => t.id === currentTemaId)) {
+          currentTemaId = temas[0].id;
+        }
+
+        renderTemas(temas, materiales);
+        renderMaterialesDeTema(currentTemaId, temas, materiales);
+      } catch (error) {
+        document.getElementById('cursoTitulo').textContent = 'Error al cargar';
+        document.getElementById('cursoDescripcion').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    function renderTemas(temas, materiales) {
+      temasList.innerHTML = temas.map(tema => {
+        const total = materiales.filter(m => Number(m.tema_id) === Number(tema.id)).length;
+        return `
+          <div class="tema-item ${tema.id === currentTemaId ? 'active' : ''}">
+            <button onclick="selectTema(${tema.id})">
+              <strong>${tema.titulo}</strong><br>
+              <span class="muted">${tema.descripcion || 'Sin descripción.'}</span><br>
+              <span class="muted">${total} material(es)</span>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectTema(id) {
+      currentTemaId = id;
+      const temas = cursoActual.temas || [];
+      const materiales = cursoActual.materiales || [];
+      renderTemas(temas, materiales);
+      renderMaterialesDeTema(id, temas, materiales);
+    }
+
+    function renderMaterialesDeTema(temaId, temas, materiales) {
+      const tema = temas.find(t => Number(t.id) === Number(temaId));
+      const filtrados = materiales.filter(m => Number(m.tema_id) === Number(temaId));
+
+      if (!tema) {
+        materialsContainer.innerHTML = '<p class="muted">Tema no encontrado.</p>';
+        return;
+      }
+
+      if (!filtrados.length) {
+        materialsContainer.innerHTML = `
+          <h4>${tema.titulo}</h4>
+          <p class="muted">${tema.descripcion || 'Sin descripción.'}</p>
+          <p class="muted">No hay materiales en este tema.</p>
+        `;
+        return;
+      }
+
+      materialsContainer.innerHTML = `
+        <h4>${tema.titulo}</h4>
+        <p class="muted" style="margin-bottom:14px;">${tema.descripcion || 'Sin descripción.'}</p>
+        ${filtrados.map(material => `
+          <div class="material">
+            <div class="material-top">
+              <strong>${material.titulo}</strong>
+              <span class="material-type">${material.tipo}</span>
+            </div>
+            <p>${material.descripcion || 'Sin descripción.'}</p>
+            <button class="btn btn-secondary" onclick='previewMaterial(${JSON.stringify(material)})'>
+              Ver en navegador
+            </button>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function previewMaterial(material) {
+      const url = `/api/ver-material?id=${material.id}`;
+      const tipo = (material.tipo || '').toLowerCase();
+
+      if (tipo === 'pptx' || tipo === 'docx') {
+        window.open(url, '_blank');
+
+        viewerBox.innerHTML = `
+          <div style="width:100%;">
+            <div style="margin-bottom:12px;">
+              <strong>${material.titulo}</strong>
+            </div>
+            <div class="status-box">
+              Este tipo de archivo no se puede mostrar dentro del visor.
+              Se ha abierto en una pestaña nueva.
+            </div>
+            <div style="margin-top:12px;">
+              <a
+                href="${url}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+              >
+                Abrir archivo
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      viewerBox.innerHTML = `
+        <div style="width:100%;">
+          <div style="margin-bottom:12px;">
+            <strong>${material.titulo}</strong>
+          </div>
+          <iframe
+            src="${url}"
+            width="100%"
+            height="700"
+            style="border:1px solid #ccc; border-radius:8px; background:white;"
+            title="${material.titulo}"
+          ></iframe>
+          <div style="margin-top:12px;">
+            <a
+              href="${url}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary"
+            >
+              Abrir en pestaña nueva
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    async function crearTema() {
+      try {
+        const titulo = document.getElementById('temaTitulo').value.trim();
+        const descripcion = document.getElementById('temaDescripcion').value.trim();
+
+        if (!currentCursoId) throw new Error('Selecciona un curso.');
+        if (!titulo) throw new Error('Escribe un título para el tema.');
+
+        const res = await fetch('/api/crear-tema', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profesor_key: profesorKey,
+            curso_id: currentCursoId,
+            titulo,
+            descripcion
+          })
+        });
+
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'No se pudo crear el tema.');
+
+        document.getElementById('temaEstado').innerHTML = '<span class="ok">Tema creado correctamente.</span>';
+        document.getElementById('temaTitulo').value = '';
+        document.getElementById('temaDescripcion').value = '';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        document.getElementById('temaEstado').innerHTML = `<span class="error">${error.message}</span>`;
+      }
+    }
+
+    async function subirMaterial() {
+      const btn = document.getElementById('btnSubirMaterial');
+      const estado = document.getElementById('uploadEstado');
+
+      try {
+        const titulo = document.getElementById('uploadTitulo').value.trim();
+        const descripcion = document.getElementById('uploadDescripcion').value.trim();
+        const tipo = document.getElementById('uploadTipo').value;
+        const file = document.getElementById('uploadFile').files[0];
+
+        if (!currentCursoId) throw new Error('Selecciona un curso.');
+        if (!currentTemaId) throw new Error('Selecciona primero un tema.');
+        if (!titulo) throw new Error('Escribe un título para el material.');
+        if (!file) throw new Error('Selecciona un archivo.');
+
+        btn.disabled = true;
+        btn.textContent = 'Subiendo...';
+        estado.textContent = 'Subiendo archivo...';
+
+        const fd = new FormData();
+        fd.append('profesor_key', profesorKey);
+        fd.append('curso_id', currentCursoId);
+        fd.append('tema_id', currentTemaId);
+        fd.append('titulo', titulo);
+        fd.append('descripcion', descripcion);
+        fd.append('tipo', tipo);
+        fd.append('file', file);
+
+        const res = await fetch('/api/subir-material', {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'No se pudo subir el archivo.');
+
+        estado.innerHTML = '<span class="ok">Archivo subido correctamente.</span>';
+        document.getElementById('uploadTitulo').value = '';
+        document.getElementById('uploadDescripcion').value = '';
+        document.getElementById('uploadFile').value = '';
+        loadCursoDetalle(currentCursoId);
+      } catch (error) {
+        estado.innerHTML = `<span class="error">${error.message}</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Subir ahora';
+      }
+    }
+
+    loadCursos();
+  </script>
+</body>
+</html>
