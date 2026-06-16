@@ -215,13 +215,13 @@
       border-radius: 999px;
     }
 
-    .course-list, .topic-list, .material-list, .events-list {
+    .course-list, .topic-list, .material-list, .events-list, .quick-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .course-item, .topic-item, .material-item, .event-item {
+    .course-item, .topic-item, .material-item, .event-item, .quick-item {
       border: 1px solid rgba(15,23,42,.08);
       border-radius: 16px;
       background: var(--surface);
@@ -233,7 +233,7 @@
       background: #f5faff;
     }
 
-    .course-item button, .topic-item button {
+    .course-item button, .topic-item button, .quick-item button {
       width: 100%;
       text-align: left;
       background: none;
@@ -519,7 +519,6 @@
 
     <main class="main">
       <div class="shell">
-        <!-- DASHBOARD (sin visor) -->
         <section id="view-dashboard" class="view">
           <section class="hero">
             <div>
@@ -545,10 +544,12 @@
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Actividad</h3>
-                    <span class="subtle">Últimas acciones</span>
+                    <h3>Accesos rápidos</h3>
+                    <span class="subtle">Ir al contenido</span>
                   </div>
-                  <div id="dashboardActividad" class="helper">Cargando actividad...</div>
+                  <div id="dashboardQuickTopics" class="quick-list">
+                    <div class="helper">Cargando temas del curso actual...</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -557,19 +558,16 @@
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Accesos rápidos</h3>
-                    <span class="subtle">Atajos</span>
+                    <h3>Actividad</h3>
+                    <span class="subtle">Últimas acciones</span>
                   </div>
-                  <div class="helper">
-                    Usa el menú lateral para ir a <strong>Mis cursos</strong>, <strong>Calendario</strong> o <strong>Archivos</strong>.
-                  </div>
+                  <div id="dashboardActividad" class="helper">Cargando actividad...</div>
                 </div>
               </div>
             </div>
           </section>
         </section>
 
-        <!-- MIS CURSOS (con visor en tercera columna) -->
         <section id="view-mis-cursos" class="view hidden">
           <section class="hero">
             <div>
@@ -579,7 +577,6 @@
           </section>
 
           <section class="dashboard">
-            <!-- Columna 1: Cursos + crear curso -->
             <div class="stack">
               <div class="panel">
                 <div class="panel-body">
@@ -615,7 +612,6 @@
               </div>
             </div>
 
-            <!-- Columna 2: Detalle curso + temas -->
             <div class="stack">
               <div class="panel">
                 <div class="panel-body">
@@ -636,23 +632,21 @@
                   <div id="temasList" class="topic-list"></div>
                 </div>
               </div>
-            </div>
 
-            <!-- Columna 3: Materiales + Visor + Crear tema + Subir material -->
-            <div class="stack">
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
                     <h3>Materiales</h3>
-                    <span class="subtle">Vista del tema actual</span>
+                    <span class="subtle">Debajo del tema actual</span>
                   </div>
                   <div id="materialsContainer" class="material-list">
                     <div class="helper">Selecciona un tema para ver sus materiales.</div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- VISOR AQUÍ (tercera columna, encima de Crear tema) -->
+            <div class="stack">
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
@@ -730,7 +724,6 @@
           </section>
         </section>
 
-        <!-- CALENDARIO -->
         <section id="view-calendario" class="view hidden">
           <section class="hero">
             <div>
@@ -816,7 +809,6 @@
           </div>
         </section>
 
-        <!-- ARCHIVOS -->
         <section id="view-archivos" class="view hidden">
           <section class="hero">
             <div>
@@ -831,7 +823,6 @@
           </div>
         </section>
 
-        <!-- MODO PROFESOR -->
         <section id="view-modo-profesor" class="view hidden">
           <section class="hero">
             <div>
@@ -855,7 +846,6 @@
           </div>
         </section>
 
-        <!-- PERFIL -->
         <section id="view-perfil" class="view hidden">
           <section class="hero">
             <div>
@@ -1012,6 +1002,37 @@
       }).join('');
     }
 
+    function renderDashboardQuickTopics() {
+      const box = document.getElementById('dashboardQuickTopics');
+      const temas = Array.isArray(cursoActual?.temas) ? cursoActual.temas : [];
+
+      if (!temas.length) {
+        box.innerHTML = '<div class="helper">No hay temas en el curso actual.</div>';
+        return;
+      }
+
+      box.innerHTML = temas.map(tema => `
+        <div class="quick-item">
+          <button type="button" onclick="goToTema(${Number(currentCursoId)}, ${Number(tema.id)})">
+            <div class="item-head">
+              <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
+              <span class="type-badge">Ir</span>
+            </div>
+            <div class="subtle">${escapeHtml(tema.descripcion || 'Abrir este tema en Mis cursos.')}</div>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function goToTema(cursoId, temaId) {
+      setView('mis-cursos', document.querySelector('[data-view-btn="mis-cursos"]'));
+      if (Number(currentCursoId) !== Number(cursoId)) {
+        await selectCurso(cursoId);
+      }
+      selectTema(temaId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     async function selectCurso(id) {
       currentCursoId = Number(id);
       currentTemaId = null;
@@ -1053,6 +1074,7 @@
           temasList.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
           materialsContainer.innerHTML = '<div class="helper">No hay materiales porque todavía no hay temas.</div>';
           renderDashboardActividad();
+          renderDashboardQuickTopics();
           return;
         }
 
@@ -1064,11 +1086,13 @@
         renderTemas(temas, materiales);
         renderMaterialesDeTema(currentTemaId, temas, materiales);
         renderDashboardActividad();
+        renderDashboardQuickTopics();
       } catch (error) {
         document.getElementById('cursoTitulo').textContent = 'Error al cargar';
         document.getElementById('cursoDescripcion').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
         temasList.innerHTML = '<div class="helper">No se pudieron cargar los temas.</div>';
         materialsContainer.innerHTML = '<div class="helper">No se pudieron cargar los materiales.</div>';
+        document.getElementById('dashboardQuickTopics').innerHTML = '<div class="helper">No se pudieron cargar los accesos rápidos.</div>';
       }
     }
 
@@ -1482,6 +1506,7 @@
       renderYearCalendar();
       renderEventsList();
       renderDashboardActividad();
+      renderDashboardQuickTopics();
     })();
   </script>
 </body>
