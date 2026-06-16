@@ -5,16 +5,20 @@ export async function onRequestPost(context) {
     const body = await readJson(context.request);
     if (!requireProfesorKey(body.profesor_key)) return unauthorized();
 
-    const cursoId = Number(body.curso_id || 0);
+    const curso_id = Number(body.curso_id || 0);
+    const fecha = String(body.fecha || '').trim();
     const titulo = String(body.titulo || '').trim();
+    const hora_inicio = String(body.hora_inicio || '').trim();
+    const hora_fin = String(body.hora_fin || '').trim();
     const descripcion = String(body.descripcion || '').trim();
 
-    if (!cursoId) return json({ ok: false, error: 'Curso no válido' }, 400);
-    if (!titulo) return json({ ok: false, error: 'Título obligatorio' }, 400);
+    if (!curso_id || !fecha || !titulo || !hora_inicio || !hora_fin) {
+      return json({ ok: false, error: 'Faltan datos obligatorios' }, 400);
+    }
 
     const result = await context.env.DB.prepare(
-      'INSERT INTO temas (curso_id, titulo, descripcion, orden_num) VALUES (?, ?, ?, COALESCE((SELECT MAX(orden_num) + 1 FROM temas WHERE curso_id = ?), 1))'
-    ).bind(cursoId, titulo, descripcion, cursoId).run();
+      'INSERT INTO eventos (curso_id, fecha, titulo, hora_inicio, hora_fin, descripcion) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(curso_id, fecha, titulo, hora_inicio, hora_fin, descripcion).run();
 
     return json({ ok: true, id: result.meta?.last_row_id || null });
   } catch (error) {

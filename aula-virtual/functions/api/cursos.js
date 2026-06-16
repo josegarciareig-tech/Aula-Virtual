@@ -1,19 +1,13 @@
+import { json } from './_utils.js';
+
 export async function onRequestGet(context) {
   try {
-    const db = context.env.DB
+    const rows = await context.env.DB.prepare(
+      'SELECT * FROM cursos ORDER BY id ASC'
+    ).all();
 
-    const { results } = await db
-      .prepare("SELECT id, titulo, descripcion, imagen, creado_en FROM cursos ORDER BY id DESC")
-      .all()
-
-    return Response.json({
-      ok: true,
-      cursos: results || []
-    })
+    return json({ ok: true, cursos: rows.results || [] });
   } catch (error) {
-    return Response.json(
-      { ok: false, error: error.message || "Error al cargar cursos" },
-      { status: 500 }
-    )
+    return json({ ok: false, error: error.message || 'Error interno' }, 500);
   }
 }
