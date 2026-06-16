@@ -215,25 +215,43 @@
       border-radius: 999px;
     }
 
-    .course-list, .topic-list, .material-list, .events-list, .quick-list {
+    .course-list, .topic-list, .material-list, .events-list, .dashboard-course-grid {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .course-item, .topic-item, .material-item, .event-item, .quick-item {
+    .dashboard-course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .course-item, .topic-item, .material-item, .event-item, .dashboard-course-card {
       border: 1px solid rgba(15,23,42,.08);
       border-radius: 16px;
       background: var(--surface);
       padding: 14px;
     }
 
-    .course-item.active, .topic-item.active, .calendar-day.selected {
+    .dashboard-course-card {
+      cursor: pointer;
+      transition: .18s ease;
+      box-shadow: 0 6px 18px rgba(15,23,42,.04);
+    }
+
+    .dashboard-course-card:hover {
+      transform: translateY(-2px);
+      border-color: #bfd7f4;
+      background: #f8fbff;
+    }
+
+    .course-item.active, .topic-item.active, .calendar-day.selected, .dashboard-course-card.active {
       border-color: #bfd7f4;
       background: #f5faff;
     }
 
-    .course-item button, .topic-item button, .quick-item button {
+    .course-item button, .topic-item button, .dashboard-course-card button {
       width: 100%;
       text-align: left;
       background: none;
@@ -278,11 +296,13 @@
 
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-strong); }
+
     .btn-secondary {
       background: #eef2f7;
       color: #1e2d3d;
       border: 1px solid #dbe5ef;
     }
+
     .btn-danger {
       background: #fff1f0;
       color: var(--danger);
@@ -479,6 +499,7 @@
       .hero h2 { font-size: 32px; }
       .main { padding: 14px; }
       .calendar-year { grid-template-columns: 1fr; }
+      .dashboard-course-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -523,7 +544,7 @@
           <section class="hero">
             <div>
               <h2>Panel general</h2>
-              <p>Resumen rápido de la actividad del aula virtual.</p>
+              <p>Visualiza todos los cursos y accede a cada uno desde el dashboard.</p>
             </div>
           </section>
 
@@ -544,17 +565,29 @@
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Accesos rápidos</h3>
-                    <span class="subtle">Ir al contenido</span>
+                    <h3>Cursos disponibles</h3>
+                    <span class="subtle">Haz clic para entrar</span>
                   </div>
-                  <div id="dashboardQuickTopics" class="quick-list">
-                    <div class="helper">Cargando temas del curso actual...</div>
+                  <div id="dashboardCourses" class="dashboard-course-grid">
+                    <div class="helper">Cargando cursos...</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="stack">
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Temas del curso actual</h3>
+                    <span class="subtle" id="dashboardTemasCount">Cargando...</span>
+                  </div>
+                  <div id="dashboardTemasList" class="topic-list">
+                    <div class="helper">Selecciona un curso para ver sus temas.</div>
+                  </div>
+                </div>
+              </div>
+
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
@@ -962,25 +995,31 @@
     async function loadCursos() {
       try {
         document.getElementById('cursosEstado').textContent = 'Cargando...';
-        const res = await fetch('/api/cursos');
+        const res = await fetch('/api/cursos', { cache: 'no-cache' });
         const data = await safeParseResponse(res);
         cursos = Array.isArray(data) ? data : (data.cursos || []);
 
         if (!Array.isArray(cursos) || !cursos.length) {
           document.getElementById('cursosEstado').textContent = 'Sin cursos';
           cursosList.innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
+          document.getElementById('dashboardCourses').innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
           document.getElementById('eventoCurso').innerHTML = '<option value="">Sin cursos</option>';
+          document.getElementById('dashboardTemasList').innerHTML = '<div class="helper">No hay temas porque no hay cursos.</div>';
+          document.getElementById('dashboardTemasCount').textContent = '0 temas';
           return;
         }
 
         if (!currentCursoId) currentCursoId = Number(cursos[0].id);
+
         renderCursos();
+        renderDashboardCourses();
         renderEventoCursos();
         document.getElementById('cursosEstado').textContent = `${cursos.length} curso(s)`;
         await loadCursoDetalle(currentCursoId);
       } catch (error) {
         document.getElementById('cursosEstado').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
         cursosList.innerHTML = '<div class="helper">No se pudieron cargar los cursos.</div>';
+        document.getElementById('dashboardCourses').innerHTML = '<div class="helper">No se pudieron cargar los cursos del dashboard.</div>';
       }
     }
 
@@ -1008,41 +1047,38 @@
       }).join('');
     }
 
-    function renderDashboardQuickTopics() {
-      const box = document.getElementById('dashboardQuickTopics');
-      const temas = Array.isArray(cursoActual?.temas) ? cursoActual.temas : [];
+    function renderDashboardCourses() {
+      const box = document.getElementById('dashboardCourses');
 
-      if (!temas.length) {
-        box.innerHTML = '<div class="helper">No hay temas en el curso actual.</div>';
+      if (!Array.isArray(cursos) || !cursos.length) {
+        box.innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
         return;
       }
 
-      box.innerHTML = temas.map(tema => `
-        <div class="quick-item">
-          <button type="button" onclick="goToTema(${Number(currentCursoId)}, ${Number(tema.id)})">
+      box.innerHTML = cursos.map(curso => `
+        <div class="dashboard-course-card ${Number(curso.id) === Number(currentCursoId) ? 'active' : ''}">
+          <button type="button" onclick="goToCurso(${Number(curso.id)})">
             <div class="item-head">
-              <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
-              <span class="type-badge">Ir</span>
+              <strong>${escapeHtml(curso.titulo || curso.nombre || 'Curso')}</strong>
+              <span class="type-badge">Abrir</span>
             </div>
-            <div class="subtle">${escapeHtml(tema.descripcion || 'Abrir este tema en Mis cursos.')}</div>
+            <div class="subtle">${escapeHtml(curso.descripcion || 'Sin descripción.')}</div>
           </button>
         </div>
       `).join('');
     }
 
-    async function goToTema(cursoId, temaId) {
+    async function goToCurso(cursoId) {
       setView('mis-cursos', document.querySelector('[data-view-btn="mis-cursos"]'));
-      if (Number(currentCursoId) !== Number(cursoId)) {
-        await selectCurso(cursoId);
-      }
-      selectTema(temaId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      await selectCurso(cursoId);
+      document.getElementById('cursoTitulo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function selectCurso(id) {
       currentCursoId = Number(id);
       currentTemaId = null;
       renderCursos();
+      renderDashboardCourses();
       renderEventoCursos();
       await loadCursoDetalle(currentCursoId);
       renderDashboardActividad();
@@ -1059,7 +1095,7 @@
         materialsContainer.innerHTML = '<div class="helper">Selecciona un tema para ver sus materiales.</div>';
         viewerBox.innerHTML = '<div class="viewer-empty">Selecciona un material para abrirlo.</div>';
 
-        const res = await fetch(`/api/curso?id=${Number(id)}`);
+        const res = await fetch(`/api/curso?id=${Number(id)}`, { cache: 'no-cache' });
         const data = await safeParseResponse(res);
         if (!res.ok) throw new Error(data.error || 'Error al cargar el curso.');
 
@@ -1079,8 +1115,8 @@
           document.getElementById('temaResumen').textContent = 'Sin temas';
           temasList.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
           materialsContainer.innerHTML = '<div class="helper">No hay materiales porque todavía no hay temas.</div>';
+          renderDashboardTemas([]);
           renderDashboardActividad();
-          renderDashboardQuickTopics();
           return;
         }
 
@@ -1091,15 +1127,49 @@
         document.getElementById('temaResumen').textContent = `${temas.length} tema(s)`;
         renderTemas(temas, materiales);
         renderMaterialesDeTema(currentTemaId, temas, materiales);
+        renderDashboardTemas(temas);
         renderDashboardActividad();
-        renderDashboardQuickTopics();
       } catch (error) {
         document.getElementById('cursoTitulo').textContent = 'Error al cargar';
         document.getElementById('cursoDescripcion').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
         temasList.innerHTML = '<div class="helper">No se pudieron cargar los temas.</div>';
         materialsContainer.innerHTML = '<div class="helper">No se pudieron cargar los materiales.</div>';
-        document.getElementById('dashboardQuickTopics').innerHTML = '<div class="helper">No se pudieron cargar los accesos rápidos.</div>';
       }
+    }
+
+    function renderDashboardTemas(temas) {
+      const box = document.getElementById('dashboardTemasList');
+      const count = document.getElementById('dashboardTemasCount');
+      if (!box) return;
+
+      if (!temas.length) {
+        box.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
+        if (count) count.textContent = '0 temas';
+        return;
+      }
+
+      if (count) count.textContent = `${temas.length} tema(s)`;
+      box.innerHTML = temas.map(tema => `
+        <div class="topic-item">
+          <button type="button" onclick="irATemaDesdeDashboard(${Number(tema.id)})">
+            <div class="item-head">
+              <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
+              <span class="type-badge">Tema</span>
+            </div>
+            <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function irATemaDesdeDashboard(temaId) {
+      currentTemaId = Number(temaId);
+      setView('mis-cursos', document.querySelector('[data-view-btn="mis-cursos"]'));
+      const temas = Array.isArray(cursoActual?.temas) ? cursoActual.temas : [];
+      const materiales = Array.isArray(cursoActual?.materiales) ? cursoActual.materiales : [];
+      renderTemas(temas, materiales);
+      renderMaterialesDeTema(currentTemaId, temas, materiales);
+      document.getElementById('temaResumen')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function renderTemas(temas, materiales) {
@@ -1428,8 +1498,11 @@
 
     function changeYear(step) {
       currentYear += step;
-      renderYearCalendar();
-      renderEventsList();
+      loadCalendarEvents().then(() => {
+        renderYearCalendar();
+        renderEventsList();
+        renderDashboardActividad();
+      });
     }
 
     async function loadCalendarEvents() {
@@ -1528,8 +1601,9 @@
       const eventos = calendarEvents.filter(ev => Number(ev.curso_id) === Number(currentCursoId)).length;
       document.getElementById('dashboardActividad').innerHTML = `
         Cursos cargados: <strong>${cursos.length}</strong><br>
-        Temas del curso actual: <strong>${temas}</strong><br>
-        Materiales del curso actual: <strong>${materiales}</strong><br>
+        Curso activo: <strong>${escapeHtml((cursos.find(c => Number(c.id) === Number(currentCursoId))?.titulo || cursos.find(c => Number(c.id) === Number(currentCursoId))?.nombre || 'Sin curso'))}</strong><br>
+        Temas del curso activo: <strong>${temas}</strong><br>
+        Materiales del curso activo: <strong>${materiales}</strong><br>
         Clases programadas para este curso: <strong>${eventos}</strong>
       `;
     }
@@ -1550,7 +1624,6 @@
       renderYearCalendar();
       renderEventsList();
       renderDashboardActividad();
-      renderDashboardQuickTopics();
       updateFolderPreview();
     })();
   </script>
