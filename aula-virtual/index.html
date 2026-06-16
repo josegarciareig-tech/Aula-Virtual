@@ -519,6 +519,7 @@
 
     <main class="main">
       <div class="shell">
+        <!-- DASHBOARD (sin visor) -->
         <section id="view-dashboard" class="view">
           <section class="hero">
             <div>
@@ -544,12 +545,10 @@
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Visor</h3>
-                    <span class="subtle">Previsualización</span>
+                    <h3>Actividad</h3>
+                    <span class="subtle">Últimas acciones</span>
                   </div>
-                  <div id="viewerBox" class="viewer-box">
-                    <div class="viewer-empty">Selecciona un material en "Mis cursos" para abrirlo.</div>
-                  </div>
+                  <div id="dashboardActividad" class="helper">Cargando actividad...</div>
                 </div>
               </div>
             </div>
@@ -558,16 +557,19 @@
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
-                    <h3>Actividad</h3>
-                    <span class="subtle">Últimas acciones</span>
+                    <h3>Accesos rápidos</h3>
+                    <span class="subtle">Atajos</span>
                   </div>
-                  <div id="dashboardActividad" class="helper">Cargando actividad...</div>
+                  <div class="helper">
+                    Usa el menú lateral para ir a <strong>Mis cursos</strong>, <strong>Calendario</strong> o <strong>Archivos</strong>.
+                  </div>
                 </div>
               </div>
             </div>
           </section>
         </section>
 
+        <!-- MIS CURSOS (con visor en tercera columna) -->
         <section id="view-mis-cursos" class="view hidden">
           <section class="hero">
             <div>
@@ -577,6 +579,7 @@
           </section>
 
           <section class="dashboard">
+            <!-- Columna 1: Cursos + crear curso -->
             <div class="stack">
               <div class="panel">
                 <div class="panel-body">
@@ -612,6 +615,7 @@
               </div>
             </div>
 
+            <!-- Columna 2: Detalle curso + temas -->
             <div class="stack">
               <div class="panel">
                 <div class="panel-body">
@@ -632,7 +636,10 @@
                   <div id="temasList" class="topic-list"></div>
                 </div>
               </div>
+            </div>
 
+            <!-- Columna 3: Materiales + Visor + Crear tema + Subir material -->
+            <div class="stack">
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
@@ -644,9 +651,20 @@
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div class="stack">
+              <!-- VISOR AQUÍ (tercera columna, encima de Crear tema) -->
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="section-title">
+                    <h3>Visor</h3>
+                    <span class="subtle">Previsualización</span>
+                  </div>
+                  <div id="viewerBox" class="viewer-box">
+                    <div class="viewer-empty">Selecciona un material en "Mis cursos" para abrirlo.</div>
+                  </div>
+                </div>
+              </div>
+
               <div class="panel" data-only-profesor>
                 <div class="panel-body">
                   <div class="section-title">
@@ -712,6 +730,7 @@
           </section>
         </section>
 
+        <!-- CALENDARIO -->
         <section id="view-calendario" class="view hidden">
           <section class="hero">
             <div>
@@ -797,6 +816,7 @@
           </div>
         </section>
 
+        <!-- ARCHIVOS -->
         <section id="view-archivos" class="view hidden">
           <section class="hero">
             <div>
@@ -811,6 +831,7 @@
           </div>
         </section>
 
+        <!-- MODO PROFESOR -->
         <section id="view-modo-profesor" class="view hidden">
           <section class="hero">
             <div>
@@ -834,6 +855,7 @@
           </div>
         </section>
 
+        <!-- PERFIL -->
         <section id="view-perfil" class="view hidden">
           <section class="hero">
             <div>
