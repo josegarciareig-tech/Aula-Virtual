@@ -686,12 +686,12 @@
                 <div class="panel-body">
                   <div class="section-title">
                     <h3>Subir material</h3>
-                    <span class="subtle">Carga de archivos</span>
+                    <span class="subtle">Archivo o carpeta completa</span>
                   </div>
                   <div class="form-grid">
                     <div>
                       <label for="uploadTitulo">Título</label>
-                      <input id="uploadTitulo" type="text" placeholder="Título del material" />
+                      <input id="uploadTitulo" type="text" placeholder="Título del material o lote" />
                     </div>
                     <div>
                       <label for="uploadDescripcion">Descripción</label>
@@ -707,12 +707,18 @@
                         <option value="jpg">JPG</option>
                         <option value="jpeg">JPEG</option>
                         <option value="png">PNG</option>
+                        <option value="mixto">Mixto / carpeta</option>
                       </select>
                     </div>
                     <div>
-                      <label for="uploadFile">Archivo</label>
+                      <label for="uploadFile">Archivo individual</label>
                       <input id="uploadFile" type="file" />
                     </div>
+                    <div>
+                      <label for="uploadFolder">Carpeta completa</label>
+                      <input id="uploadFolder" type="file" webkitdirectory multiple />
+                    </div>
+                    <div id="folderPreview" class="helper">No has seleccionado ninguna carpeta.</div>
                     <div class="actions">
                       <button class="btn btn-primary" id="btnSubirMaterial" type="button" onclick="subirMaterial()">Subir ahora</button>
                     </div>
@@ -1148,6 +1154,7 @@
             <span class="type-badge">${escapeHtml(material.tipo || 'archivo')}</span>
           </div>
           <div class="subtle">${escapeHtml(material.descripcion || 'Sin descripción.')}</div>
+          <div class="subtle">${material.ruta_relativa ? escapeHtml(material.ruta_relativa) : ''}</div>
           <div class="actions">
             <button class="btn btn-secondary" type="button" onclick="previewMaterial(${Number(material.id)}, '${escapeHtml(material.titulo || '').replace(/'/g, "\\'")}', '${escapeHtml((material.tipo || '').toLowerCase()).replace(/'/g, "\\'")}')">Ver en navegador</button>
             ${modoUsuario === 'profesor' ? `<button class="btn btn-danger" type="button" onclick="eliminarMaterial(${Number(material.id)})">Eliminar</button>` : ''}
@@ -1255,24 +1262,46 @@
       }
     }
 
+    function updateFolderPreview() {
+      const folderInput = document.getElementById('uploadFolder');
+      const preview = document.getElementById('folderPreview');
+      const files = Array.from(folderInput.files || []);
+
+      if (!files.length) {
+        preview.textContent = 'No has seleccionado ninguna carpeta.';
+        return;
+      }
+
+      const firstPath = files[0].webkitRelativePath || files[0].name;
+      const rootFolder = firstPath.includes('/') ? firstPath.split('/')[0] : 'Carpeta';
+      preview.innerHTML = `
+        <strong>${escapeHtml(rootFolder)}</strong><br>
+        ${files.length} archivo(s) detectado(s).<br>
+        Primer elemento: ${escapeHtml(firstPath)}
+      `;
+    }
+
     async function subirMaterial() {
       const btn = document.getElementById('btnSubirMaterial');
       const estado = document.getElementById('uploadEstado');
+
       try {
         const titulo = document.getElementById('uploadTitulo').value.trim();
         const descripcion = document.getElementById('uploadDescripcion').value.trim();
         const tipo = document.getElementById('uploadTipo').value;
-        const file = document.getElementById('uploadFile').files[0];
+        const singleFiles = document.getElementById('uploadFile').files;
+        const folderFiles = document.getElementById('uploadFolder').files;
+        const files = folderFiles.length ? folderFiles : singleFiles;
 
         if (modoUsuario !== 'profesor') throw new Error('No autorizado');
         if (!currentCursoId) throw new Error('Selecciona un curso.');
         if (!currentTemaId) throw new Error('Selecciona primero un tema.');
         if (!titulo) throw new Error('Escribe un título para el material.');
-        if (!file) throw new Error('Selecciona un archivo.');
+        if (!files.length) throw new Error('Selecciona un archivo o una carpeta.');
 
         btn.disabled = true;
         btn.textContent = 'Subiendo...';
-        estado.textContent = 'Subiendo archivo...';
+        estado.textContent = folderFiles.length ? 'Subiendo carpeta...' : 'Subiendo archivo...';
 
         const fd = new FormData();
         fd.append('profesor_key', profesorKey);
@@ -1281,16 +1310,29 @@
         fd.append('titulo', titulo);
         fd.append('descripcion', descripcion);
         fd.append('tipo', tipo);
-        fd.append('file', file);
 
-        const res = await fetch('/api/subir-material', { method: 'POST', body: fd });
+        Array.from(files).forEach(file => {
+          fd.append('files[]', file);
+          fd.append('paths[]', file.webkitRelativePath || file.name);
+        });
+
+        const res = await fetch('/api/subir-material', {
+          method: 'POST',
+          body: fd
+        });
+
         const data = await safeParseResponse(res);
-        if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo subir el archivo.');
+        if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo subir el material.');
 
-        estado.innerHTML = '<span class="ok">Archivo subido correctamente.</span>';
+        estado.innerHTML = folderFiles.length
+          ? '<span class="ok">Carpeta subida correctamente.</span>'
+          : '<span class="ok">Archivo subido correctamente.</span>';
+
         document.getElementById('uploadTitulo').value = '';
         document.getElementById('uploadDescripcion').value = '';
         document.getElementById('uploadFile').value = '';
+        document.getElementById('uploadFolder').value = '';
+        updateFolderPreview();
         await loadCursoDetalle(currentCursoId);
       } catch (error) {
         estado.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
@@ -1497,6 +1539,8 @@
       updatePerfil();
     }
 
+    document.getElementById('uploadFolder').addEventListener('change', updateFolderPreview);
+
     (async function init() {
       await readProfesorKey();
       applyRoleUI();
@@ -1507,6 +1551,7 @@
       renderEventsList();
       renderDashboardActividad();
       renderDashboardQuickTopics();
+      updateFolderPreview();
     })();
   </script>
 </body>
