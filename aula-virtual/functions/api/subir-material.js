@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
     const titulo = (formData.get("titulo") || "").toString().trim();
     const descripcion = (formData.get("descripcion") || "").toString().trim();
     const tipo = (formData.get("tipo") || "").toString().trim().toLowerCase();
-    const file = formData.get("file");
+    const file = formData.get("files[]") || formData.get("file");
 
     const ADMIN_KEY = env.ADMIN_KEY || "cambiar-esta-clave";
 
