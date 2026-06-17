@@ -1,0 +1,7 @@
+name = "aula-virtual"
+compatibility_date = "2026-06-17"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aula-virtual"
+database_id = "d65b97ad-e3f3-40ed-9eda-ca26c08e2ca6"

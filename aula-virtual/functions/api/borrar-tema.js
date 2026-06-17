@@ -1,34 +1,23 @@
+import { json, readJson, requireProfesorKey, unauthorized } from './_utils.js';
+
 export async function onRequestPost(context) {
   try {
-    const body = await context.request.json();
-    const env = context.env;
+    const body = await readJson(context.request);
+    if (!requireProfesorKey(body.profesor_key)) return unauthorized();
 
-    const profesorKey = (body.profesor_key || "").trim();
-    const tema_id = Number(body.tema_id);
+    const temaId = Number(body.tema_id || 0);
+    if (!temaId) return json({ ok: false, error: 'Tema no válido' }, 400);
 
-    const ADMIN_KEY = env.ADMIN_KEY || "cambiar-esta-clave";
+    await context.env.DB.prepare(
+      'DELETE FROM materiales WHERE tema_id = ?'
+    ).bind(temaId).run();
 
-    if (profesorKey !== ADMIN_KEY) {
-      return Response.json({ ok: false, error: "No autorizado" }, { status: 401 });
-    }
+    await context.env.DB.prepare(
+      'DELETE FROM temas WHERE id = ?'
+    ).bind(temaId).run();
 
-    if (!tema_id) {
-      return Response.json({ ok: false, error: "Falta tema_id" }, { status: 400 });
-    }
-
-    await env.DB.prepare(`DELETE FROM materiales WHERE tema_id = ?`)
-      .bind(tema_id)
-      .run();
-
-    await env.DB.prepare(`DELETE FROM temas WHERE id = ?`)
-      .bind(tema_id)
-      .run();
-
-    return Response.json({ ok: true });
+    return json({ ok: true });
   } catch (error) {
-    return Response.json(
-      { ok: false, error: error.message || "Error al borrar tema" },
-      { status: 500 }
-    );
+    return json({ ok: false, error: error.message || 'Error al borrar tema' }, 500);
   }
 }
