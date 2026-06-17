@@ -1050,16 +1050,21 @@
         const titulo = escapeHtml(curso.titulo || curso.nombre || 'Curso sin título');
         const descripcion = escapeHtml(curso.descripcion || 'Sin descripción.');
         return `
-          <div class="course-item ${Number(curso.id) === Number(currentCursoId) ? 'active' : ''}">
-            <button type="button" onclick="selectCurso(${Number(curso.id)})">
-              <div class="item-head">
-                <strong>${titulo}</strong>
-                <span class="type-badge">Curso</span>
-              </div>
-              <div class="subtle">${descripcion}</div>
-            </button>
-          </div>
-        `;
+  <div class="course-item ${Number(curso.id) === Number(currentCursoId) ? 'active' : ''}">
+    <button type="button" onclick="selectCurso(${Number(curso.id)})">
+      <div class="item-head">
+        <strong>${titulo}</strong>
+        <span class="type-badge">Curso</span>
+      </div>
+      <div class="subtle">${descripcion}</div>
+    </button>
+    ${modoUsuario === 'profesor' ? `
+      <div class="actions">
+        <button class="btn btn-danger" type="button" onclick="eliminarCurso(${Number(curso.id)})">Eliminar</button>
+      </div>
+    ` : ''}
+  </div>
+`;
       }).join('');
     }
 
@@ -1338,7 +1343,35 @@
         estado.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
       }
     }
+async function eliminarCurso(id) {
+  const estado = document.getElementById('cursoEstado');
+  try {
+    if (modoUsuario !== 'profesor') throw new Error('No autorizado');
+    if (!confirm('¿Seguro que quieres eliminar este curso? También se eliminarán sus temas y materiales.')) return;
 
+    const res = await fetch('/api/borrar-curso', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profesor_key: profesorKey, curso_id: Number(id) })
+    });
+
+    const data = await safeParseResponse(res);
+    if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo eliminar el curso.');
+
+    if (Number(currentCursoId) === Number(id)) {
+      currentCursoId = null;
+      currentTemaId = null;
+      cursoActual = null;
+    }
+
+    estado.innerHTML = '<span class="ok">Curso eliminado correctamente.</span>';
+    await loadCursos();
+    renderDashboardActividad();
+  } catch (error) {
+    estado.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+    alert(error.message);
+  }
+}
     async function crearTema() {
       try {
         const titulo = document.getElementById('temaTitulo').value.trim();
@@ -1370,7 +1403,7 @@
         if (modoUsuario !== 'profesor') throw new Error('No autorizado');
         if (!confirm('¿Seguro que quieres eliminar este tema? También se quitarán sus materiales visibles en este curso.')) return;
 
-        const res = await fetch('/api/eliminar-tema', {
+        const res = await fetch('/api/borrar-tema', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profesor_key: profesorKey, tema_id: Number(id) })
