@@ -31,6 +31,7 @@
 
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
+
     body {
       font-family: Inter, Arial, sans-serif;
       background: var(--bg);
@@ -246,7 +247,7 @@
       background: #f8fbff;
     }
 
-    .course-item.active, .topic-item.active, .calendar-day.selected, .dashboard-course-card.active {
+    .course-item.active, .topic-item.active, .calendar-day.selected {
       border-color: #bfd7f4;
       background: #f5faff;
     }
@@ -367,7 +368,10 @@
       color: var(--text);
     }
 
-    textarea { min-height: 96px; resize: vertical; }
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
 
     .status-box {
       background: #fff7e8;
@@ -587,7 +591,9 @@
                   </div>
                 </div>
               </div>
+            </div>
 
+            <div class="stack">
               <div class="panel">
                 <div class="panel-body">
                   <div class="section-title">
@@ -934,6 +940,14 @@
         .replace(/'/g, '&#39;');
     }
 
+    function jsString(value) {
+      return String(value ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, ' ')
+        .replace(/\r/g, ' ');
+    }
+
     async function safeParseResponse(res) {
       const text = await res.text();
       try {
@@ -1003,9 +1017,9 @@
           document.getElementById('cursosEstado').textContent = 'Sin cursos';
           cursosList.innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
           document.getElementById('dashboardCourses').innerHTML = '<div class="helper">No hay cursos disponibles.</div>';
-          document.getElementById('eventoCurso').innerHTML = '<option value="">Sin cursos</option>';
           document.getElementById('dashboardTemasList').innerHTML = '<div class="helper">No hay temas porque no hay cursos.</div>';
           document.getElementById('dashboardTemasCount').textContent = '0 temas';
+          document.getElementById('eventoCurso').innerHTML = '<option value="">Sin cursos</option>';
           return;
         }
 
@@ -1025,7 +1039,9 @@
 
     function renderEventoCursos() {
       const select = document.getElementById('eventoCurso');
-      select.innerHTML = cursos.map(curso => `<option value="${Number(curso.id)}">${escapeHtml(curso.titulo || curso.nombre || 'Curso')}</option>`).join('');
+      select.innerHTML = cursos.map(curso =>
+        `<option value="${Number(curso.id)}">${escapeHtml(curso.titulo || curso.nombre || 'Curso')}</option>`
+      ).join('');
       if (currentCursoId) select.value = String(currentCursoId);
     }
 
@@ -1111,11 +1127,12 @@
         document.getElementById('heroCursoTitulo').textContent = cursoTitulo;
         document.getElementById('heroCursoDescripcion').textContent = cursoDescripcion;
 
+        renderDashboardTemas(temas, materiales);
+
         if (!temas.length) {
           document.getElementById('temaResumen').textContent = 'Sin temas';
           temasList.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
           materialsContainer.innerHTML = '<div class="helper">No hay materiales porque todavía no hay temas.</div>';
-          renderDashboardTemas([]);
           renderDashboardActividad();
           return;
         }
@@ -1127,7 +1144,6 @@
         document.getElementById('temaResumen').textContent = `${temas.length} tema(s)`;
         renderTemas(temas, materiales);
         renderMaterialesDeTema(currentTemaId, temas, materiales);
-        renderDashboardTemas(temas);
         renderDashboardActividad();
       } catch (error) {
         document.getElementById('cursoTitulo').textContent = 'Error al cargar';
@@ -1137,7 +1153,7 @@
       }
     }
 
-    function renderDashboardTemas(temas) {
+    function renderDashboardTemas(temas, materiales = []) {
       const box = document.getElementById('dashboardTemasList');
       const count = document.getElementById('dashboardTemasCount');
       if (!box) return;
@@ -1148,18 +1164,28 @@
         return;
       }
 
-      if (count) count.textContent = `${temas.length} tema(s)`;
-      box.innerHTML = temas.map(tema => `
-        <div class="topic-item">
-          <button type="button" onclick="irATemaDesdeDashboard(${Number(tema.id)})">
-            <div class="item-head">
-              <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
-              <span class="type-badge">Tema</span>
-            </div>
-            <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
-          </button>
-        </div>
-      `).join('');
+      if (count) count.textContent = `${temas.length} tema${temas.length === 1 ? '' : 's'}`;
+
+      box.innerHTML = temas.map(tema => {
+        const total = materiales.filter(m =>
+          Number(m.tema_id ?? m.temaId) === Number(tema.id)
+        ).length;
+
+        return `
+          <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
+            <button type="button" onclick="irATemaDesdeDashboard(${Number(tema.id)})">
+              <div class="item-head">
+                <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
+                <span class="type-badge">${total} mat.</span>
+              </div>
+              <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
+            </button>
+            ${modoUsuario === 'profesor'
+              ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
+              : ''}
+          </div>
+        `;
+      }).join('');
     }
 
     function irATemaDesdeDashboard(temaId) {
@@ -1169,12 +1195,14 @@
       const materiales = Array.isArray(cursoActual?.materiales) ? cursoActual.materiales : [];
       renderTemas(temas, materiales);
       renderMaterialesDeTema(currentTemaId, temas, materiales);
-      document.getElementById('temaResumen')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function renderTemas(temas, materiales) {
       temasList.innerHTML = temas.map(tema => {
-        const total = materiales.filter(m => Number(m.tema_id) === Number(tema.id)).length;
+        const total = materiales.filter(m =>
+          Number(m.tema_id ?? m.temaId) === Number(tema.id)
+        ).length;
+
         return `
           <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
             <button type="button" onclick="selectTema(${Number(tema.id)})">
@@ -1184,6 +1212,9 @@
               </div>
               <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
             </button>
+            ${modoUsuario === 'profesor'
+              ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
+              : ''}
           </div>
         `;
       }).join('');
@@ -1195,11 +1226,12 @@
       const materiales = Array.isArray(cursoActual?.materiales) ? cursoActual.materiales : [];
       renderTemas(temas, materiales);
       renderMaterialesDeTema(currentTemaId, temas, materiales);
+      renderDashboardTemas(temas, materiales);
     }
 
     function renderMaterialesDeTema(temaId, temas, materiales) {
       const tema = temas.find(t => Number(t.id) === Number(temaId));
-      const filtrados = materiales.filter(m => Number(m.tema_id) === Number(temaId));
+      const filtrados = materiales.filter(m => Number(m.tema_id ?? m.temaId) === Number(temaId));
 
       if (!tema) {
         materialsContainer.innerHTML = '<div class="helper">Tema no encontrado.</div>';
@@ -1226,7 +1258,7 @@
           <div class="subtle">${escapeHtml(material.descripcion || 'Sin descripción.')}</div>
           <div class="subtle">${material.ruta_relativa ? escapeHtml(material.ruta_relativa) : ''}</div>
           <div class="actions">
-            <button class="btn btn-secondary" type="button" onclick="previewMaterial(${Number(material.id)}, '${escapeHtml(material.titulo || '').replace(/'/g, "\\'")}', '${escapeHtml((material.tipo || '').toLowerCase()).replace(/'/g, "\\'")}')">Ver en navegador</button>
+            <button class="btn btn-secondary" type="button" onclick="previewMaterial(${Number(material.id)}, '${jsString(material.titulo || '')}', '${jsString((material.tipo || '').toLowerCase())}')">Ver en navegador</button>
             ${modoUsuario === 'profesor' ? `<button class="btn btn-danger" type="button" onclick="eliminarMaterial(${Number(material.id)})">Eliminar</button>` : ''}
           </div>
         </div>
@@ -1294,6 +1326,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profesor_key: profesorKey, titulo, descripcion })
         });
+
         const data = await safeParseResponse(res);
         if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo crear el curso.');
 
@@ -1329,6 +1362,30 @@
         await loadCursoDetalle(currentCursoId);
       } catch (error) {
         document.getElementById('temaEstado').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+      }
+    }
+
+    async function eliminarTema(id) {
+      try {
+        if (modoUsuario !== 'profesor') throw new Error('No autorizado');
+        if (!confirm('¿Seguro que quieres eliminar este tema? También se quitarán sus materiales visibles en este curso.')) return;
+
+        const res = await fetch('/api/eliminar-tema', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profesor_key: profesorKey, tema_id: Number(id) })
+        });
+
+        const data = await safeParseResponse(res);
+        if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo eliminar el tema.');
+
+        if (Number(currentTemaId) === Number(id)) currentTemaId = null;
+        document.getElementById('temaEstado').innerHTML = '<span class="ok">Tema eliminado correctamente.</span>';
+        await loadCursoDetalle(currentCursoId);
+        renderDashboardActividad();
+      } catch (error) {
+        document.getElementById('temaEstado').innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+        alert(error.message);
       }
     }
 
@@ -1422,6 +1479,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profesor_key: profesorKey, material_id: Number(id) })
         });
+
         const data = await safeParseResponse(res);
         if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo eliminar el material.');
 
@@ -1498,11 +1556,8 @@
 
     function changeYear(step) {
       currentYear += step;
-      loadCalendarEvents().then(() => {
-        renderYearCalendar();
-        renderEventsList();
-        renderDashboardActividad();
-      });
+      renderYearCalendar();
+      renderEventsList();
     }
 
     async function loadCalendarEvents() {
@@ -1535,6 +1590,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profesor_key: profesorKey, curso_id, fecha: selectedDate, titulo, hora_inicio, hora_fin, descripcion })
         });
+
         const data = await safeParseResponse(res);
         if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo guardar la clase.');
 
@@ -1560,6 +1616,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profesor_key: profesorKey, evento_id: Number(id) })
         });
+
         const data = await safeParseResponse(res);
         if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo eliminar la clase.');
         await loadCalendarEvents();
