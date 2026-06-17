@@ -1154,39 +1154,39 @@
     }
 
     function renderDashboardTemas(temas, materiales = []) {
-      const box = document.getElementById('dashboardTemasList');
-      const count = document.getElementById('dashboardTemasCount');
-      if (!box) return;
+  const box = document.getElementById('dashboardTemasList');
+  const count = document.getElementById('dashboardTemasCount');
+  if (!box) return;
 
-      if (!temas.length) {
-        box.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
-        if (count) count.textContent = '0 temas';
-        return;
-      }
+  if (!temas.length) {
+    box.innerHTML = '<div class="helper">Este curso no tiene temas todavía.</div>';
+    if (count) count.textContent = '0 temas';
+    return;
+  }
 
-      if (count) count.textContent = `${temas.length} tema${temas.length === 1 ? '' : 's'}`;
+  if (count) count.textContent = `${temas.length} tema${temas.length === 1 ? '' : 's'}`;
 
-      box.innerHTML = temas.map(tema => {
-        const total = materiales.filter(m =>
-          Number(m.tema_id ?? m.temaId) === Number(tema.id)
-        ).length;
+  box.innerHTML = temas.map(tema => {
+    const total = materiales.filter(m =>
+      Number(m.tema_id ?? m.temaId) === Number(tema.id)
+    ).length;
 
-        return `
-          <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
-            <button type="button" onclick="irATemaDesdeDashboard(${Number(tema.id)})">
-              <div class="item-head">
-                <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
-                <span class="type-badge">${total} mat.</span>
-              </div>
-              <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
-            </button>
-            ${modoUsuario === 'profesor'
-              ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
-              : ''}
+    return `
+      <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
+        <button type="button" onclick="irATemaDesdeDashboard(${Number(tema.id)})">
+          <div class="item-head">
+            <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
+            <span class="type-badge">${total} mat.</span>
           </div>
-        `;
-      }).join('');
-    }
+          <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
+        </button>
+        ${modoUsuario === 'profesor'
+          ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
+          : ''}
+      </div>
+    `;
+  }).join('');
+}
 
     function irATemaDesdeDashboard(temaId) {
       currentTemaId = Number(temaId);
@@ -1198,27 +1198,27 @@
     }
 
     function renderTemas(temas, materiales) {
-      temasList.innerHTML = temas.map(tema => {
-        const total = materiales.filter(m =>
-          Number(m.tema_id ?? m.temaId) === Number(tema.id)
-        ).length;
+  temasList.innerHTML = temas.map(tema => {
+    const total = materiales.filter(m =>
+      Number(m.tema_id ?? m.temaId) === Number(tema.id)
+    ).length;
 
-        return `
-          <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
-            <button type="button" onclick="selectTema(${Number(tema.id)})">
-              <div class="item-head">
-                <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
-                <span class="type-badge">${total} mat.</span>
-              </div>
-              <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
-            </button>
-            ${modoUsuario === 'profesor'
-              ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
-              : ''}
+    return `
+      <div class="topic-item ${Number(tema.id) === Number(currentTemaId) ? 'active' : ''}">
+        <button type="button" onclick="selectTema(${Number(tema.id)})">
+          <div class="item-head">
+            <strong>${escapeHtml(tema.titulo || 'Tema')}</strong>
+            <span class="type-badge">${total} mat.</span>
           </div>
-        `;
-      }).join('');
-    }
+          <div class="subtle">${escapeHtml(tema.descripcion || 'Sin descripción.')}</div>
+        </button>
+        ${modoUsuario === 'profesor'
+          ? `<div class="actions"><button class="btn btn-danger" type="button" onclick="eliminarTema(${Number(tema.id)})">Eliminar tema</button></div>`
+          : ''}
+      </div>
+    `;
+  }).join('');
+}
 
     function selectTema(id) {
       currentTemaId = Number(id);
